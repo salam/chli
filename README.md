@@ -199,6 +199,10 @@ output/       Dual-mode output formatting (table/JSON)
 
 **Dependencies:** Only [Cobra](https://github.com/spf13/cobra). Everything else uses the Go standard library.
 
+## For AI Agents
+
+This repository includes a [SKILL.md](SKILL.md) with project layout, conventions, and recipes for extending chli. Compatible with OpenClaw and other agent frameworks that discover skills via frontmatter-annotated SKILL.md files.
+
 ## License
 
 MIT
