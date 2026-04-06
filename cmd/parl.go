@@ -369,30 +369,29 @@ func showPersonProfile(client *api.Client, m api.ParlMemberCouncil) error {
 	}
 
 	// Declared interests — merge Parliament API with OpenParlData extras.
-	// Build a lookup from OpenParlData by organization name for enrichment.
-	openByName := make(map[string]api.OpenParlInterest)
-	for _, oi := range openInterests {
-		openByName[oi.Name.Pick(output.Lang)] = oi
-	}
-
 	type interestRow struct {
-		org, function, itype, payment string
+		org, function, itype, paid string
 	}
 	var mergedInterests []interestRow
 	seen := make(map[string]bool)
 
-	// Start with Parliament API entries, enrich with OpenParlData payment info.
+	// Parliament API entries are the primary source.
 	for _, pi := range parlInterests {
 		name := api.Str(pi.InterestName)
-		row := interestRow{
+		paid := ""
+		if pi.Paid != nil {
+			if *pi.Paid {
+				paid = "yes"
+			} else {
+				paid = "no"
+			}
+		}
+		mergedInterests = append(mergedInterests, interestRow{
 			org:      name,
 			function: api.Str(pi.FunctionInAgencyText),
 			itype:    api.Str(pi.InterestTypeText),
-		}
-		if oi, ok := openByName[name]; ok {
-			row.payment = oi.TypePayment.Pick(output.Lang)
-		}
-		mergedInterests = append(mergedInterests, row)
+			paid:     paid,
+		})
 		seen[name] = true
 	}
 
@@ -402,11 +401,17 @@ func showPersonProfile(client *api.Client, m api.ParlMemberCouncil) error {
 		if seen[name] {
 			continue
 		}
+		paid := ""
+		if h := api.Str(oi.TypePaymentHarmonized); h == "honorary" {
+			paid = "no"
+		} else if h == "paid" {
+			paid = "yes"
+		}
 		mergedInterests = append(mergedInterests, interestRow{
 			org:      name,
 			function: oi.RoleName.Pick(output.Lang),
 			itype:    oi.Group.Pick(output.Lang),
-			payment:  oi.TypePayment.Pick(output.Lang),
+			paid:     paid,
 		})
 	}
 
@@ -414,9 +419,9 @@ func showPersonProfile(client *api.Client, m api.ParlMemberCouncil) error {
 		output.Section(fmt.Sprintf("Declared Interests (%d)", len(mergedInterests)))
 		rows := make([][]string, len(mergedInterests))
 		for i, r := range mergedInterests {
-			rows[i] = []string{r.org, r.function, r.itype, r.payment}
+			rows[i] = []string{r.org, r.function, r.itype, r.paid}
 		}
-		output.Table([]string{"Organization", "Function", "Type", "Payment"}, rows)
+		output.Table([]string{"Organization", "Function", "Type", "Paid"}, rows)
 	}
 
 	// Lobby badges (G1)
