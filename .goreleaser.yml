@@ -1,0 +1,58 @@
+version: 2
+
+builds:
+  - binary: chli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/matthiasak/chli/cmd.version={{.Version}} -X github.com/matthiasak/chli/cmd.commit={{.Commit}} -X github.com/matthiasak/chli/cmd.buildDate={{.Date}}
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+release:
+  github:
+    owner: matthiasak
+    name: chli
+
+brews:
+  - repository:
+      owner: matthiasak
+      name: chli
+      branch: main
+      directory: Formula
+    name: chli
+    homepage: https://github.com/matthiasak/chli
+    description: "Unified CLI for Swiss government open data"
+    license: MIT
+    install: |
+      bin.install "chli"
+      bash_completion.install "completions/chli.bash" => "chli"
+      zsh_completion.install "completions/chli.zsh" => "_chli"
+      fish_completion.install "completions/chli.fish"
+    test: |
+      system "#{bin}/chli", "version"

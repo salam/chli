@@ -153,14 +153,68 @@ var entscheidCourtsCmd = &cobra.Command{
 	},
 }
 
+var entscheidDownloadCmd = &cobra.Command{
+	Use:   "download <id>",
+	Short: "Download a court decision PDF by ID",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		id := args[0]
+
+		client, err := api.NewClient()
+		if err != nil {
+			output.Error(err.Error())
+			os.Exit(1)
+		}
+		client.NoCache = noCache
+		client.Refresh = refresh
+
+		decision, err := client.EntscheidGet(id)
+		if err != nil {
+			output.Error(err.Error())
+			os.Exit(1)
+		}
+
+		if decision.Attachment.ContentURL == "" {
+			output.Error("no attachment URL found for decision " + id)
+			os.Exit(1)
+		}
+
+		data, contentType, err := client.DownloadFile(decision.Attachment.ContentURL, nil)
+		if err != nil {
+			output.Error(err.Error())
+			os.Exit(1)
+		}
+
+		filename, _ := cmd.Flags().GetString("output")
+		if filename == "" {
+			ext := ".pdf"
+			if strings.Contains(contentType, "html") {
+				ext = ".html"
+			}
+			filename = id + ext
+		}
+
+		if err := os.WriteFile(filename, data, 0644); err != nil {
+			output.Error(fmt.Sprintf("writing file: %v", err))
+			os.Exit(1)
+		}
+
+		fmt.Printf("Downloaded %s (%d bytes)\n", filename, len(data))
+		return nil
+	},
+}
+
 func init() {
 	entscheidSearchCmd.Flags().String("court", "", "Filter by court or canton (e.g. BGer, BVGer, ZH)")
 	entscheidSearchCmd.Flags().String("from", "", "Filter decisions from date (YYYY-MM-DD)")
 	entscheidSearchCmd.Flags().String("to", "", "Filter decisions to date (YYYY-MM-DD)")
 	entscheidSearchCmd.Flags().Int("size", 10, "Number of results to return")
 
+	entscheidDownloadCmd.Flags().String("output", "", "Output filename (default: <id>.pdf)")
+
 	entscheidCmd.AddCommand(entscheidSearchCmd)
 	entscheidCmd.AddCommand(entscheidGetCmd)
 	entscheidCmd.AddCommand(entscheidCourtsCmd)
+	entscheidCmd.AddCommand(entscheidDownloadCmd)
 	rootCmd.AddCommand(entscheidCmd)
 }

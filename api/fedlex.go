@@ -138,6 +138,16 @@ func (c *Client) FedlexTreaties(partner string, year string, lang string) ([]Tre
 	return parseTreatyEntries(result), nil
 }
 
+// FedlexVersions fetches all consolidated versions of a law by SR number.
+func (c *Client) FedlexVersions(srNumber string, lang string) ([]FedlexVersion, error) {
+	query := fmt.Sprintf(QuerySRVersions, srNumber, LangURI(lang))
+	result, err := c.FedlexSPARQL(query)
+	if err != nil {
+		return nil, err
+	}
+	return parseVersionEntries(result), nil
+}
+
 // newPostRequest builds an HTTP POST request for the SPARQL endpoint
 // with the correct Content-Type and Accept headers.
 func newPostRequest(endpoint, body string) (*http.Request, error) {
@@ -208,6 +218,24 @@ func parseConsultationEntries(result *SPARQLResult) []ConsultationEntry {
 			Title:   val(b, "title"),
 			DateDoc: val(b, "dateDoc"),
 			Status:  shortenURI(val(b, "status")),
+		})
+	}
+	return entries
+}
+
+func parseVersionEntries(result *SPARQLResult) []FedlexVersion {
+	seen := make(map[string]bool)
+	entries := make([]FedlexVersion, 0, len(result.Results.Bindings))
+	for _, b := range result.Results.Bindings {
+		uri := val(b, "version")
+		if seen[uri] {
+			continue
+		}
+		seen[uri] = true
+		entries = append(entries, FedlexVersion{
+			URI:   uri,
+			Date:  val(b, "dateApplicability"),
+			Title: val(b, "title"),
 		})
 	}
 	return entries

@@ -245,6 +245,140 @@ var fedlexTreatyCmd = &cobra.Command{
 }
 
 var (
+	diffV1 string
+	diffV2 string
+)
+
+var fedlexDiffCmd = &cobra.Command{
+	Use:   "diff <sr-number>",
+	Short: "Compare two versions of the same SR law text",
+	Long:  "Fetch available versions of a law by SR number and show a line-by-line diff of their titles. Use --v1 and --v2 to specify dates.",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client, err := newFedlexClient()
+		if err != nil {
+			return err
+		}
+		srNumber := args[0]
+		versions, err := client.FedlexVersions(srNumber, output.Lang)
+		if err != nil {
+			output.Error(err.Error())
+			os.Exit(1)
+		}
+		if len(versions) == 0 {
+			output.Error("no versions found for SR " + srNumber)
+			os.Exit(1)
+		}
+
+		// If no versions specified, list available versions
+		if diffV1 == "" || diffV2 == "" {
+			if output.IsInteractive() {
+				output.Section("Available versions for SR " + srNumber)
+				headers := []string{"Date", "Title", "URI"}
+				rows := make([][]string, 0, len(versions))
+				for _, v := range versions {
+					rows = append(rows, []string{
+						v.Date,
+						output.Truncate(v.Title, 60),
+						v.URI,
+					})
+				}
+				output.Table(headers, rows)
+				fmt.Println()
+				fmt.Println("Use --v1 DATE --v2 DATE to compare two versions.")
+			} else {
+				output.JSON(versions)
+			}
+			return nil
+		}
+
+		// Find versions matching the specified dates
+		var v1, v2 *api.FedlexVersion
+		for i := range versions {
+			if versions[i].Date == diffV1 {
+				v1 = &versions[i]
+			}
+			if versions[i].Date == diffV2 {
+				v2 = &versions[i]
+			}
+		}
+		if v1 == nil {
+			output.Error("version not found for date: " + diffV1)
+			os.Exit(1)
+		}
+		if v2 == nil {
+			output.Error("version not found for date: " + diffV2)
+			os.Exit(1)
+		}
+
+		// Show diff of titles
+		if output.IsInteractive() {
+			output.Section("Diff SR " + srNumber + ": " + diffV1 + " vs " + diffV2)
+			lines1 := strings.Split(v1.Title, "\n")
+			lines2 := strings.Split(v2.Title, "\n")
+			diffLines := lineDiff(lines1, lines2)
+			for _, dl := range diffLines {
+				fmt.Println(dl)
+			}
+		} else {
+			output.JSON(map[string]any{
+				"sr":    srNumber,
+				"v1":    v1,
+				"v2":    v2,
+				"diff":  lineDiff(strings.Split(v1.Title, "\n"), strings.Split(v2.Title, "\n")),
+			})
+		}
+		return nil
+	},
+}
+
+// lineDiff produces a simple line-by-line comparison between two sets of lines.
+// Lines only in a are prefixed with "- ", lines only in b with "+ ", common lines with "  ".
+func lineDiff(a, b []string) []string {
+	// Build a simple LCS-based diff
+	n, m := len(a), len(b)
+	// LCS table
+	lcs := make([][]int, n+1)
+	for i := range lcs {
+		lcs[i] = make([]int, m+1)
+	}
+	for i := n - 1; i >= 0; i-- {
+		for j := m - 1; j >= 0; j-- {
+			if a[i] == b[j] {
+				lcs[i][j] = lcs[i+1][j+1] + 1
+			} else if lcs[i+1][j] >= lcs[i][j+1] {
+				lcs[i][j] = lcs[i+1][j]
+			} else {
+				lcs[i][j] = lcs[i][j+1]
+			}
+		}
+	}
+
+	var result []string
+	i, j := 0, 0
+	for i < n && j < m {
+		if a[i] == b[j] {
+			result = append(result, "  "+a[i])
+			i++
+			j++
+		} else if lcs[i+1][j] >= lcs[i][j+1] {
+			result = append(result, "- "+a[i])
+			i++
+		} else {
+			result = append(result, "+ "+b[j])
+			j++
+		}
+	}
+	for ; i < n; i++ {
+		result = append(result, "- "+a[i])
+	}
+	for ; j < m; j++ {
+		result = append(result, "+ "+b[j])
+	}
+	return result
+}
+
+var (
 	fetchFormat string
 )
 
@@ -295,6 +429,8 @@ func init() {
 	fedlexTreatyCmd.Flags().StringVar(&treatyPartner, "partner", "", "Filter by treaty partner")
 	fedlexTreatyCmd.Flags().StringVar(&treatyYear, "year", "", "Filter by year")
 	fedlexFetchCmd.Flags().StringVar(&fetchFormat, "format", "html", "Manifestation format (html, pdf, xml)")
+	fedlexDiffCmd.Flags().StringVar(&diffV1, "v1", "", "Date of first version (e.g. 2020-01-01)")
+	fedlexDiffCmd.Flags().StringVar(&diffV2, "v2", "", "Date of second version (e.g. 2024-01-01)")
 
 	fedlexCmd.AddCommand(fedlexSRCmd)
 	fedlexCmd.AddCommand(fedlexSearchCmd)
@@ -303,6 +439,7 @@ func init() {
 	fedlexCmd.AddCommand(fedlexConsultationCmd)
 	fedlexCmd.AddCommand(fedlexTreatyCmd)
 	fedlexCmd.AddCommand(fedlexFetchCmd)
+	fedlexCmd.AddCommand(fedlexDiffCmd)
 
 	rootCmd.AddCommand(fedlexCmd)
 }

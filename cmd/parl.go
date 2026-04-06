@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -367,30 +368,55 @@ func showPersonProfile(client *api.Client, m api.ParlMemberCouncil) error {
 		output.Table([]string{"Number", "Type", "Title", "Role"}, rows)
 	}
 
-	// Declared interests (Parliament API)
-	if len(parlInterests) > 0 {
-		output.Section(fmt.Sprintf("Declared Interests (%d)", len(parlInterests)))
-		rows := make([][]string, len(parlInterests))
-		for i, interest := range parlInterests {
-			rows[i] = []string{
-				api.Str(interest.InterestName),
-				api.Str(interest.FunctionInAgencyText),
-				api.Str(interest.InterestTypeText),
-			}
-		}
-		output.Table([]string{"Organization", "Function", "Type"}, rows)
+	// Declared interests — merge Parliament API with OpenParlData extras.
+	// Build a lookup from OpenParlData by organization name for enrichment.
+	openByName := make(map[string]api.OpenParlInterest)
+	for _, oi := range openInterests {
+		openByName[oi.Name.Pick(output.Lang)] = oi
 	}
 
-	// OpenParlData interests (G1)
-	if len(openInterests) > 0 {
-		output.Section(fmt.Sprintf("Corporate Roles — OpenParlData (%d)", len(openInterests)))
-		rows := make([][]string, len(openInterests))
-		for i, interest := range openInterests {
-			rows[i] = []string{
-				output.Truncate(interest.Name.Pick(output.Lang), 70),
-			}
+	type interestRow struct {
+		org, function, itype, payment string
+	}
+	var mergedInterests []interestRow
+	seen := make(map[string]bool)
+
+	// Start with Parliament API entries, enrich with OpenParlData payment info.
+	for _, pi := range parlInterests {
+		name := api.Str(pi.InterestName)
+		row := interestRow{
+			org:      name,
+			function: api.Str(pi.FunctionInAgencyText),
+			itype:    api.Str(pi.InterestTypeText),
 		}
-		output.Table([]string{"Interest / Role"}, rows)
+		if oi, ok := openByName[name]; ok {
+			row.payment = oi.TypePayment.Pick(output.Lang)
+		}
+		mergedInterests = append(mergedInterests, row)
+		seen[name] = true
+	}
+
+	// Add any OpenParlData entries not already covered by Parliament data.
+	for _, oi := range openInterests {
+		name := oi.Name.Pick(output.Lang)
+		if seen[name] {
+			continue
+		}
+		mergedInterests = append(mergedInterests, interestRow{
+			org:      name,
+			function: oi.RoleName.Pick(output.Lang),
+			itype:    oi.Group.Pick(output.Lang),
+			payment:  oi.TypePayment.Pick(output.Lang),
+		})
+	}
+
+	if len(mergedInterests) > 0 {
+		output.Section(fmt.Sprintf("Declared Interests (%d)", len(mergedInterests)))
+		rows := make([][]string, len(mergedInterests))
+		for i, r := range mergedInterests {
+			rows[i] = []string{r.org, r.function, r.itype, r.payment}
+		}
+		output.Table([]string{"Organization", "Function", "Type", "Payment"}, rows)
 	}
 
 	// Lobby badges (G1)
@@ -798,6 +824,8 @@ func stripHTML(s string) string {
 
 // --- parl vote (C: smart suggestions when no arg) ---
 
+var parlVoteDetail bool
+
 var parlVoteCmd = &cobra.Command{
 	Use:   "vote [business-short-number]",
 	Short: "Show voting results for a business item",
@@ -855,20 +883,291 @@ var parlVoteCmd = &cobra.Command{
 			output.Section(fmt.Sprintf("Votes for %s", args[0]))
 			rows := make([][]string, len(votes))
 			for i, v := range votes {
+				// Fetch vote counts from individual Voting records.
+				counts, err := client.FetchVoteCounts(v.ID)
+				var yesNo string
+				if err == nil {
+					yesNo = fmt.Sprintf("%d / %d / %d", counts.Yes, counts.No, counts.Abstain)
+				}
+				// Subject/MeaningYes/MeaningNo are not translated by the API (always French).
+				// Translate them client-side.
 				rows[i] = []string{
 					fmt.Sprintf("%d", v.ID),
-					output.Truncate(api.Str(v.Subject), 50),
-					api.Str(v.MeaningYes),
-					api.Str(v.MeaningNo),
+					output.Truncate(api.TranslateVoteText(api.Str(v.Subject)), 50),
+					yesNo,
+					api.TranslateVoteText(api.Str(v.MeaningYes)),
+					api.TranslateVoteText(api.Str(v.MeaningNo)),
 					api.ParseODataDate(api.Str(v.VoteEnd)),
 				}
 			}
-			output.Table([]string{"ID", "Subject", "Yes=", "No=", "Date"}, rows)
+			output.Table([]string{"ID", "Subject", "Y/N/A", "Yes=", "No=", "Date"}, rows)
 		} else {
-			output.JSON(votes)
+			type voteWithCounts struct {
+				api.ParlVote
+				Yes     int `json:"Yes"`
+				No      int `json:"No"`
+				Abstain int `json:"Abstain"`
+				Absent  int `json:"Absent"`
+			}
+			enriched := make([]voteWithCounts, len(votes))
+			for i, v := range votes {
+				enriched[i].ParlVote = v
+				if counts, err := client.FetchVoteCounts(v.ID); err == nil {
+					enriched[i].Yes = counts.Yes
+					enriched[i].No = counts.No
+					enriched[i].Abstain = counts.Abstain
+					enriched[i].Absent = counts.Absent
+				}
+			}
+			output.JSON(enriched)
 		}
+
+		// --detail: show per-member and per-party breakdown for each vote
+		if parlVoteDetail {
+			for _, v := range votes {
+				votings, err := client.FetchVotings(v.ID)
+				if err != nil {
+					output.Error(fmt.Sprintf("failed to fetch voting details for vote %d: %s", v.ID, err))
+					continue
+				}
+				if len(votings) == 0 {
+					continue
+				}
+				renderVoteDetail(v, votings)
+			}
+		}
+
 		return nil
 	},
+}
+
+// decisionChar returns a single character representing a vote decision.
+func decisionChar(decision int) string {
+	switch decision {
+	case 1:
+		return "Y"
+	case 2:
+		return "N"
+	case 3:
+		return "A"
+	default:
+		return "."
+	}
+}
+
+// decisionLabel returns a human-readable label for a vote decision.
+func decisionLabel(decision int) string {
+	switch decision {
+	case 1:
+		return "Yes"
+	case 2:
+		return "No"
+	case 3:
+		return "Abstain"
+	case 5:
+		return "Not Participated"
+	case 6:
+		return "Excused"
+	case 7:
+		return "President"
+	default:
+		return "Absent"
+	}
+}
+
+// colorDecision applies ANSI color to a decision character if interactive.
+func colorDecision(ch string, decision int) string {
+	if output.NoColor || !output.IsInteractive() {
+		return ch
+	}
+	switch decision {
+	case 1:
+		return "\033[32m" + ch + "\033[0m" // green
+	case 2:
+		return "\033[31m" + ch + "\033[0m" // red
+	case 3:
+		return "\033[33m" + ch + "\033[0m" // yellow
+	default:
+		return "\033[90m" + ch + "\033[0m" // gray
+	}
+}
+
+// partyBreakdown holds per-party vote counts.
+type partyBreakdown struct {
+	Party   string
+	Yes     int
+	No      int
+	Abstain int
+	Absent  int
+	Total   int
+}
+
+// renderVoteDetail displays per-member breakdown, per-party breakdown,
+// and an ASCII seat visualization for a single vote.
+func renderVoteDetail(vote api.ParlVote, votings []api.ParlVoting) {
+	subject := api.TranslateVoteText(api.Str(vote.Subject))
+	fmt.Println()
+	output.Section(fmt.Sprintf("Vote %d: %s", vote.ID, subject))
+
+	// Aggregate counts
+	var totalYes, totalNo, totalAbstain, totalAbsent int
+	parties := make(map[string]*partyBreakdown)
+	var partyOrder []string
+
+	for _, v := range votings {
+		d := api.Int(v.Decision)
+		party := api.Str(v.ParlGroupName)
+		if party == "" {
+			party = "–"
+		}
+
+		if _, ok := parties[party]; !ok {
+			parties[party] = &partyBreakdown{Party: party}
+			partyOrder = append(partyOrder, party)
+		}
+		pb := parties[party]
+		pb.Total++
+
+		switch d {
+		case 1:
+			totalYes++
+			pb.Yes++
+		case 2:
+			totalNo++
+			pb.No++
+		case 3:
+			totalAbstain++
+			pb.Abstain++
+		default:
+			totalAbsent++
+			pb.Absent++
+		}
+	}
+
+	// Sort parties by total members (descending)
+	sort.Slice(partyOrder, func(i, j int) bool {
+		return parties[partyOrder[i]].Total > parties[partyOrder[j]].Total
+	})
+
+	// Summary
+	fmt.Printf("  Total: %d members\n", len(votings))
+	fmt.Printf("  Yes: %d  No: %d  Abstain: %d  Absent: %d\n\n", totalYes, totalNo, totalAbstain, totalAbsent)
+
+	// Per-party breakdown table
+	if output.IsInteractive() {
+		output.Section("Per-Party Breakdown")
+		partyRows := make([][]string, len(partyOrder))
+		for i, p := range partyOrder {
+			pb := parties[p]
+			partyRows[i] = []string{
+				pb.Party,
+				fmt.Sprintf("%d", pb.Yes),
+				fmt.Sprintf("%d", pb.No),
+				fmt.Sprintf("%d", pb.Abstain),
+				fmt.Sprintf("%d", pb.Absent),
+				fmt.Sprintf("%d", pb.Total),
+			}
+		}
+		output.Table([]string{"Party", "Yes", "No", "Abstain", "Absent", "Total"}, partyRows)
+	}
+
+	// Per-member list
+	if output.IsInteractive() {
+		// Sort members by party then last name
+		sorted := make([]api.ParlVoting, len(votings))
+		copy(sorted, votings)
+		sort.Slice(sorted, func(i, j int) bool {
+			pi := api.Str(sorted[i].ParlGroupName)
+			pj := api.Str(sorted[j].ParlGroupName)
+			if pi != pj {
+				return pi < pj
+			}
+			return sorted[i].LastName < sorted[j].LastName
+		})
+
+		output.Section("Per-Member Votes")
+		memberRows := make([][]string, len(sorted))
+		for i, v := range sorted {
+			d := api.Int(v.Decision)
+			label := decisionLabel(d)
+			memberRows[i] = []string{
+				v.LastName + ", " + v.FirstName,
+				api.Str(v.ParlGroupName),
+				api.Str(v.Canton),
+				output.Highlight(label),
+			}
+		}
+		output.Table([]string{"Name", "Party", "Canton", "Decision"}, memberRows)
+	} else {
+		// JSON mode: output structured detail
+		type detailJSON struct {
+			VoteID  int                `json:"VoteID"`
+			Summary map[string]int     `json:"Summary"`
+			Parties []partyBreakdown   `json:"Parties"`
+			Members []api.ParlVoting   `json:"Members"`
+		}
+		pbs := make([]partyBreakdown, len(partyOrder))
+		for i, p := range partyOrder {
+			pbs[i] = *parties[p]
+		}
+		output.JSON(detailJSON{
+			VoteID: vote.ID,
+			Summary: map[string]int{
+				"Yes": totalYes, "No": totalNo,
+				"Abstain": totalAbstain, "Absent": totalAbsent,
+			},
+			Parties: pbs,
+			Members: votings,
+		})
+	}
+
+	// ASCII seat visualization
+	if output.IsInteractive() {
+		renderSeatVisualization(partyOrder, parties, votings)
+	}
+}
+
+// renderSeatVisualization renders an ASCII visualization of seats grouped by party.
+func renderSeatVisualization(partyOrder []string, parties map[string]*partyBreakdown, votings []api.ParlVoting) {
+	fmt.Println()
+	output.Section("Seat Visualization")
+	fmt.Println("  Y=Yes  N=No  A=Abstain  .=Absent")
+	fmt.Println()
+
+	// Group votings by party
+	byParty := make(map[string][]api.ParlVoting)
+	for _, v := range votings {
+		p := api.Str(v.ParlGroupName)
+		if p == "" {
+			p = "–"
+		}
+		byParty[p] = append(byParty[p], v)
+	}
+
+	for _, party := range partyOrder {
+		members := byParty[party]
+		if len(members) == 0 {
+			continue
+		}
+
+		// Sort within party: Yes first, then No, Abstain, Absent
+		sort.Slice(members, func(i, j int) bool {
+			return api.Int(members[i].Decision) < api.Int(members[j].Decision)
+		})
+
+		fmt.Printf("  %s (%d):\n  ", party, len(members))
+		for i, v := range members {
+			d := api.Int(v.Decision)
+			ch := decisionChar(d)
+			fmt.Print(colorDecision(ch, d))
+			// Add space every 8 seats for readability
+			if (i+1)%8 == 0 && i+1 < len(members) {
+				fmt.Print(" ")
+			}
+		}
+		fmt.Println()
+	}
+	fmt.Println()
 }
 
 // --- parl session ---
@@ -876,13 +1175,25 @@ var parlVoteCmd = &cobra.Command{
 var parlSessionCurrent bool
 
 var parlSessionCmd = &cobra.Command{
-	Use:   "session",
-	Short: "List parliamentary sessions",
+	Use:   "session [id]",
+	Short: "List parliamentary sessions or view session agenda",
+	Long: `List parliamentary sessions, or view agenda items for a specific session.
+
+Examples:
+  chli parl session                # list recent sessions
+  chli parl session 5121           # show agenda for session 5121
+  chli parl session --current      # show the most recent session`,
+	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client, err := newParlClient()
 		if err != nil {
 			output.Error(err.Error())
 			os.Exit(1)
+		}
+
+		// If a session ID is given, show the agenda for that session
+		if len(args) == 1 {
+			return showSessionAgenda(client, args[0])
 		}
 
 		q := api.NewODataQuery("Session").
@@ -912,11 +1223,131 @@ var parlSessionCmd = &cobra.Command{
 				}
 			}
 			output.Table([]string{"ID", "Code", "Title", "Start", "End"}, rows)
+			fmt.Fprintf(os.Stderr, "\nTip: use 'chli parl session <ID>' to see the agenda\n")
 		} else {
 			output.JSON(sessions)
 		}
 		return nil
 	},
+}
+
+func showSessionAgenda(client *api.Client, sessionIDStr string) error {
+	sessionID := 0
+	if _, err := fmt.Sscanf(sessionIDStr, "%d", &sessionID); err != nil {
+		output.Error("invalid session ID: " + sessionIDStr)
+		os.Exit(1)
+	}
+
+	// Fetch session info
+	sq := api.NewODataQuery("Session").
+		Filter(fmt.Sprintf("ID eq %d", sessionID)).
+		Top(1)
+	var sessions []api.ParlSession
+	if err := client.ParlQueryInto(sq, &sessions); err != nil {
+		output.Error(err.Error())
+		os.Exit(1)
+	}
+	if len(sessions) == 0 {
+		output.Error("session not found: " + sessionIDStr)
+		os.Exit(1)
+	}
+	session := sessions[0]
+
+	// Find business items discussed in this session via Vote entity
+	vq := api.NewODataQuery("Vote").
+		Filter(fmt.Sprintf("IdSession eq %d", sessionID)).
+		Top(100).
+		OrderBy("RegistrationNumber")
+	var votes []api.ParlVote
+	if err := client.ParlQueryInto(vq, &votes); err != nil {
+		output.Error(err.Error())
+		os.Exit(1)
+	}
+
+	// Collect unique business short numbers from votes
+	type businessInfo struct {
+		ShortNumber string
+		Title       string
+	}
+	seen := make(map[string]bool)
+	var items []businessInfo
+	for _, v := range votes {
+		sn := api.Str(v.BusinessShortNumber)
+		if sn == "" || seen[sn] {
+			continue
+		}
+		seen[sn] = true
+		items = append(items, businessInfo{
+			ShortNumber: sn,
+			Title:       api.Str(v.BusinessTitle),
+		})
+	}
+
+	if !output.IsInteractive() {
+		result := map[string]any{
+			"session": session,
+			"items":   items,
+		}
+		output.JSON(result)
+		return nil
+	}
+
+	output.Section(fmt.Sprintf("Session %d: %s", session.ID, api.Str(session.Title)))
+	fmt.Printf("Code: %s | %s to %s\n\n",
+		api.Str(session.Code),
+		api.ParseODataDate(api.Str(session.StartDate)),
+		api.ParseODataDate(api.Str(session.EndDate)))
+
+	if len(items) == 0 {
+		fmt.Println("No business items with votes found for this session.")
+		return nil
+	}
+
+	// Fetch full business details for these items to get type info
+	var filters []string
+	for _, item := range items {
+		filters = append(filters, fmt.Sprintf("BusinessShortNumber eq '%s'", item.ShortNumber))
+	}
+
+	// Query in batches if needed (OData filter length limits)
+	businessMap := make(map[string]api.ParlBusiness)
+	batchSize := 10
+	for i := 0; i < len(filters); i += batchSize {
+		end := i + batchSize
+		if end > len(filters) {
+			end = len(filters)
+		}
+		bq := api.NewODataQuery("Business").
+			Filter("(" + strings.Join(filters[i:end], " or ") + ")").
+			Top(batchSize)
+		var businesses []api.ParlBusiness
+		if err := client.ParlQueryInto(bq, &businesses); err == nil {
+			for _, b := range businesses {
+				businessMap[b.BusinessShortNumber] = b
+			}
+		}
+	}
+
+	fmt.Printf("Business items discussed (%d):\n\n", len(items))
+	rows := make([][]string, len(items))
+	for i, item := range items {
+		typeAbbr := ""
+		title := item.Title
+		if b, ok := businessMap[item.ShortNumber]; ok {
+			typeAbbr = b.BusinessTypeAbbreviation
+			if b.Title != "" {
+				title = b.Title
+			}
+		}
+		rows[i] = []string{
+			item.ShortNumber,
+			typeAbbr,
+			output.Truncate(title, 65),
+		}
+	}
+	output.Table([]string{"Number", "Type", "Title"}, rows)
+
+	return nil
 }
 
 // --- parl committee ---
@@ -1091,8 +1522,8 @@ Or use --from / --to for explicit date ranges (YYYY-MM-DD).`,
 				seen[sn] = true
 				rows = append(rows, []string{
 					sn,
-					output.Truncate(api.Str(v.Subject), 45),
-					api.Str(v.MeaningYes),
+					output.Truncate(api.TranslateVoteText(api.Str(v.Subject)), 45),
+					api.TranslateVoteText(api.Str(v.MeaningYes)),
 					api.ParseODataDate(api.Str(v.VoteEnd)),
 				})
 			}
@@ -1201,6 +1632,9 @@ func init() {
 	parlBusinessCmd.Flags().StringVar(&parlBusinessTitle, "title", "", "Filter by title (substring)")
 	parlBusinessCmd.Flags().StringVar(&parlBusinessType, "type", "", "Filter by business type abbreviation (e.g. Mo, Ip, Po)")
 	parlBusinessCmd.Flags().StringVar(&parlBusinessBy, "by", "", "Filter by submitter name (substring, e.g. \"Franziska Roth\")")
+
+	// vote flags
+	parlVoteCmd.Flags().BoolVar(&parlVoteDetail, "detail", false, "Show per-member and per-party vote breakdown")
 
 	// session flags
 	parlSessionCmd.Flags().BoolVar(&parlSessionCurrent, "current", false, "Show only the most recent session")

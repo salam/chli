@@ -97,13 +97,72 @@ var shabPublicationCmd = &cobra.Command{
 		client.NoCache = noCache
 		client.Refresh = refresh
 
-		data, err := client.SHABPublication(id)
+		pub, raw, err := client.SHABPublicationParsed(id)
 		if err != nil {
 			output.Error(err.Error())
 			os.Exit(1)
 		}
 
-		fmt.Println(string(data))
+		// Fall back to raw XML if parsing failed
+		if pub == nil {
+			fmt.Println(string(raw))
+			return nil
+		}
+
+		if output.ForceJSON || !output.IsInteractive() {
+			output.JSON(pub)
+			return nil
+		}
+
+		// Interactive display
+		m := pub.Meta
+		if m.PublicationNumber != "" {
+			fmt.Printf("Publication:  %s\n", m.PublicationNumber)
+		}
+		if m.PublicationDate != "" {
+			fmt.Printf("Date:         %s\n", m.PublicationDate)
+		}
+		if m.Rubric != "" {
+			label := m.Rubric
+			if m.SubRubric != "" {
+				label += " / " + m.SubRubric
+			}
+			fmt.Printf("Rubric:       %s\n", label)
+		}
+		if m.RegistrationOffice != "" {
+			fmt.Printf("Office:       %s\n", m.RegistrationOffice)
+		}
+		fmt.Println()
+
+		// Pick text by language preference
+		txt := pub.Content.SHABContent.PublicationText
+		var text string
+		switch output.Lang {
+		case "fr":
+			text = txt.FR
+		case "it":
+			text = txt.IT
+		default:
+			text = txt.DE
+		}
+		if text == "" {
+			// Fallback: try any available language
+			if txt.DE != "" {
+				text = txt.DE
+			} else if txt.FR != "" {
+				text = txt.FR
+			} else if txt.IT != "" {
+				text = txt.IT
+			}
+		}
+		if text != "" {
+			fmt.Println(text)
+		} else if pub.Content.SHABContent.Message != "" {
+			fmt.Println(pub.Content.SHABContent.Message)
+		} else {
+			// Nothing parsed, show raw XML as last resort
+			fmt.Println(string(raw))
+		}
 		return nil
 	},
 }

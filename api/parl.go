@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"net/url"
-	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
@@ -84,6 +83,129 @@ func langCode() string {
 	}
 }
 
+// voteTextTranslations maps French vote texts (which the API always returns in French)
+// to their German, Italian, and English equivalents.
+var voteTextTranslations = map[string]map[string]string{
+	"Adopter le projet": {
+		"de": "Annahme des Entwurfs",
+		"it": "Adottare il progetto",
+		"en": "Adopt the draft",
+	},
+	"Rejeter le projet": {
+		"de": "Ablehnung des Entwurfs",
+		"it": "Respingere il progetto",
+		"en": "Reject the draft",
+	},
+	"Vote sur l'ensemble": {
+		"de": "Gesamtabstimmung",
+		"it": "Votazione sul complesso",
+		"en": "Overall vote",
+	},
+	"Vote final": {
+		"de": "Schlussabstimmung",
+		"it": "Votazione finale",
+		"en": "Final vote",
+	},
+	"Adopter la motion": {
+		"de": "Annahme der Motion",
+		"it": "Adottare la mozione",
+		"en": "Adopt the motion",
+	},
+	"Rejeter la motion": {
+		"de": "Ablehnung der Motion",
+		"it": "Respingere la mozione",
+		"en": "Reject the motion",
+	},
+	"Adopter le postulat": {
+		"de": "Annahme des Postulats",
+		"it": "Adottare il postulato",
+		"en": "Adopt the postulate",
+	},
+	"Rejeter le postulat": {
+		"de": "Ablehnung des Postulats",
+		"it": "Respingere il postulato",
+		"en": "Reject the postulate",
+	},
+	"Adopter l'initiative": {
+		"de": "Annahme der Initiative",
+		"it": "Adottare l'iniziativa",
+		"en": "Adopt the initiative",
+	},
+	"Rejeter l'initiative": {
+		"de": "Ablehnung der Initiative",
+		"it": "Respingere l'iniziativa",
+		"en": "Reject the initiative",
+	},
+	"Entrer en matière": {
+		"de": "Eintreten",
+		"it": "Entrare in materia",
+		"en": "Enter into deliberation",
+	},
+	"Ne pas entrer en matière": {
+		"de": "Nichteintreten",
+		"it": "Non entrare in materia",
+		"en": "Do not enter into deliberation",
+	},
+}
+
+// TranslateVoteText translates French vote texts (Subject, MeaningYes, MeaningNo)
+// to the current output language. Returns the original text if no translation is found
+// or the language is French.
+func TranslateVoteText(frenchText string) string {
+	lang := strings.ToLower(output.Lang)
+	if lang == "fr" || frenchText == "" {
+		return frenchText
+	}
+	if translations, ok := voteTextTranslations[frenchText]; ok {
+		if translated, ok := translations[lang]; ok {
+			return translated
+		}
+	}
+	return frenchText
+}
+
+// FetchVotings retrieves all individual voting records for a vote ID.
+func (c *Client) FetchVotings(voteID int) ([]ParlVoting, error) {
+	q := NewODataQuery("Voting").
+		Filter(fmt.Sprintf("IdVote eq %d and Language eq '%s'", voteID, langCode())).
+		Top(300)
+
+	var votings []ParlVoting
+	if err := c.ParlQueryInto(q, &votings); err != nil {
+		return nil, err
+	}
+	return votings, nil
+}
+
+// FetchVoteCounts retrieves individual voting records for a vote ID and
+// aggregates them into yes/no/abstain/absent counts.
+func (c *Client) FetchVoteCounts(voteID int) (VoteCounts, error) {
+	q := NewODataQuery("Voting").
+		Filter(fmt.Sprintf("IdVote eq %d", voteID)).
+		Select("Decision").
+		Top(300)
+
+	var votings []ParlVoting
+	if err := c.ParlQueryInto(q, &votings); err != nil {
+		return VoteCounts{}, err
+	}
+
+	var counts VoteCounts
+	for _, v := range votings {
+		switch Int(v.Decision) {
+		case 1:
+			counts.Yes++
+		case 2:
+			counts.No++
+		case 3:
+			counts.Abstain++
+		default: // 5=not participated, 6=excused, 7=president
+			counts.Absent++
+		}
+	}
+	return counts, nil
+}
+
 // Build produces the URL path with properly encoded query parameters.
 func (q *ODataQuery) Build() string {
 	v := url.Values{}
@@ -112,31 +234,17 @@ func (q *ODataQuery) Build() string {
 	return q.table + "?" + v.Encode()
 }
 
-// parlCurl fetches a URL using curl. The Parliament WAF uses TLS fingerprinting
-// that blocks Go's net/http client, so we shell out to curl.
-func (c *Client) parlCurl(url string) ([]byte, error) {
-	cacheKey := "GET:" + url
-
-	if !c.NoCache && !c.Refresh {
-		if data, ok := c.Cache.Get(cacheKey); ok {
-			return data, nil
-		}
-	}
-
-	out, err := exec.Command("curl", "-sf", "--max-time", "60", url).Output()
-	if err != nil {
-		return nil, fmt.Errorf("parliament API: request failed (curl): %w", err)
-	}
-
-	c.Cache.Set(cacheKey, out, 1*time.Hour)
-	return out, nil
+// parlFetch fetches a URL using the native HTTP client with custom TLS config
+// that avoids WAF fingerprint blocking on parlament.ch.
+func (c *Client) parlFetch(rawURL string) ([]byte, error) {
+	return c.DoRawWithTTL("", rawURL, 1*time.Hour)
 }
 
 // ParlQuery executes an OData query and returns the raw JSON array from the "d" field.
 func (c *Client) ParlQuery(q *ODataQuery) (json.RawMessage, error) {
 	fullURL := parlBaseURL + q.Build()
 
-	data, err := c.parlCurl(fullURL)
+	data, err := c.parlFetch(fullURL)
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +291,7 @@ func (c *Client) ParlQueryInto(q *ODataQuery, result any) error {
 
 // ParlMetadata fetches the $metadata XML document via curl.
 func (c *Client) ParlMetadata() ([]byte, error) {
-	return c.parlCurl(parlBaseURL + "$metadata")
+	return c.parlFetch(parlBaseURL + "$metadata")
 }
 
 // metadataSchema is a minimal XML structure for parsing OData $metadata.

@@ -87,6 +87,14 @@ type ParlVote struct {
 	VoteEnd             *string `json:"VoteEnd"`
 }
 
+// VoteCounts holds aggregated yes/no/abstain/absent counts for a vote.
+type VoteCounts struct {
+	Yes     int
+	No      int
+	Abstain int
+	Absent  int
+}
+
 // ParlVoting represents an individual councillor's vote.
 type ParlVoting struct {
 	ID            int     `json:"ID"`

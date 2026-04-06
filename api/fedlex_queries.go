@@ -78,3 +78,21 @@ SELECT DISTINCT ?uri ?title ?dateDoc ?partner WHERE {
   OPTIONAL { ?uri jolux:treatyParty ?partner }
   %s
 } ORDER BY DESC(?dateDoc) LIMIT 50`
+
+// QuerySRVersions fetches all consolidated versions of a law by SR number.
+// Placeholder order: %s = SR number, %s = language URI (e.g. DEU).
+const QuerySRVersions = `PREFIX jolux: <http://data.legilux.public.lu/resource/ontology/jolux#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT DISTINCT ?version ?dateApplicability ?title WHERE {
+  ?tax a skos:Concept ;
+       skos:notation "%s"^^<https://fedlex.data.admin.ch/vocabulary/notation-type/id-systematique> .
+  ?abstract jolux:classifiedByTaxonomyEntry ?tax ;
+            a jolux:ConsolidationAbstract .
+  ?version jolux:isConsolidationOf ?abstract ;
+           a jolux:Consolidation ;
+           jolux:dateApplicability ?dateApplicability ;
+           jolux:isRealizedBy ?expr .
+  ?expr jolux:language <http://publications.europa.eu/resource/authority/language/%s> ;
+        jolux:title ?title .
+} ORDER BY DESC(?dateApplicability)`

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/xml"
 	"fmt"
 	"net/url"
 	"strings"
@@ -53,4 +54,19 @@ func (c *Client) SHABPublication(id string) ([]byte, error) {
 		return nil, fmt.Errorf("SHAB publication %s: %w", id, err)
 	}
 	return data, nil
+}
+
+// SHABPublicationParsed fetches the XML for a publication and attempts to parse it.
+// It returns the parsed struct, the raw bytes, and any parse error.
+// If parsing fails the caller can fall back to raw XML display.
+func (c *Client) SHABPublicationParsed(id string) (*SHABPublicationXML, []byte, error) {
+	data, err := c.SHABPublication(id)
+	if err != nil {
+		return nil, nil, err
+	}
+	var pub SHABPublicationXML
+	if xmlErr := xml.Unmarshal(data, &pub); xmlErr != nil {
+		return nil, data, nil // parse failed, return raw bytes
+	}
+	return &pub, data, nil
 }

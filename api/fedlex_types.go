@@ -58,3 +58,10 @@ type TreatyEntry struct {
 	DateDoc string `json:"dateDocument"`
 	Partner string `json:"partner"`
 }
+
+// FedlexVersion represents a dated version of a consolidated law.
+type FedlexVersion struct {
+	URI   string `json:"uri"`
+	Date  string `json:"date"`
+	Title string `json:"title"`
+}

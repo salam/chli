@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Language string `json:"language"`
 	CacheDir string `json:"cache_dir"`
+	Timeout  int    `json:"timeout"` // HTTP timeout in seconds (default: 30)
 }
 
 func DefaultCacheDir() string {
