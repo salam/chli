@@ -11,6 +11,14 @@ import (
 const shabBaseURL = "https://shab.ch/api/v1/"
 const shabCacheTTL = 1 * time.Hour
 
+// SHABPublicationURL returns the public shab.ch detail URL for a publication UUID.
+func SHABPublicationURL(uuid string) string {
+	if uuid == "" {
+		return ""
+	}
+	return "https://shab.ch/#!/search/publications/detail/" + uuid
+}
+
 // shabHeaders returns the headers required for all SHAB API requests.
 func shabHeaders() map[string]string {
 	return map[string]string{
