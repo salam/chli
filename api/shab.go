@@ -43,6 +43,26 @@ func (c *Client) SHABSearch(keyword string, rubrics []string, page, size int) (*
 	return &result, nil
 }
 
+// SHABResolveID resolves a publication number (e.g. "HR02-1005024497") to its UUID
+// by searching the SHAB API. If the input already looks like a UUID, it is returned as-is.
+func (c *Client) SHABResolveID(idOrNumber string) (string, error) {
+	// UUIDs contain lowercase hex and dashes in 8-4-4-4-12 pattern; publication numbers don't
+	if len(idOrNumber) == 36 && idOrNumber[8] == '-' && idOrNumber[13] == '-' {
+		return idOrNumber, nil
+	}
+	// Search by publication number
+	result, err := c.SHABSearch(idOrNumber, nil, 0, 5)
+	if err != nil {
+		return "", fmt.Errorf("resolving publication number %s: %w", idOrNumber, err)
+	}
+	for _, pub := range result.Content {
+		if pub.Meta.PublicationNumber == idOrNumber {
+			return pub.Meta.ID, nil
+		}
+	}
+	return "", fmt.Errorf("no publication found for number %s", idOrNumber)
+}
+
 // SHABPublication fetches the XML detail for a single publication by UUID.
 func (c *Client) SHABPublication(id string) ([]byte, error) {
 	u := shabBaseURL + "publications/" + url.PathEscape(id) + "/xml"

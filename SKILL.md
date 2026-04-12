@@ -1,12 +1,24 @@
 ---
 name: chli
 description: Swiss federal open data CLI — parliament, law, courts, gazette, datasets from one binary
-metadata: {"openclaw": {"requires": {"bins": ["go"]}, "homepage": "https://github.com/matthiasak/chli"}}
+metadata: {"openclaw": {"requires": {"bins": ["go"]}, "homepage": "https://github.com/salam/chli"}}
 ---
 
 # chli
 
 Swiss federal open data CLI. One binary, five government APIs, consistent interface.
+
+## Install
+
+```bash
+# Homebrew (macOS)
+brew install salam/tap/chli
+
+# From source (requires Go 1.25+)
+git clone https://github.com/salam/chli.git && cd chli && make build && cp chli /usr/local/bin/
+```
+
+Verify: `chli --help`
 
 ## What it does
 
@@ -14,7 +26,7 @@ Wraps five Swiss government data sources into a single CLI:
 
 | Command           | Source              | Protocol      | Data                                   |
 |-------------------|---------------------|---------------|----------------------------------------|
-| `chli parl`       | parlament.ch        | OData v3      | Members, votes, business, committees   |
+| `chli parl`       | parlament.ch (+ ws-old.parlament.ch) | OData v3 + legacy JSON | Members, votes, business, committees, departments |
 | `chli fedlex`     | fedlex.data.admin.ch| SPARQL        | Federal law (SR), gazette, treaties    |
 | `chli entscheid`  | entscheidsuche.ch   | Elasticsearch | Court decisions, all 26 cantons        |
 | `chli shab`       | shab.ch             | REST          | Official Gazette publications          |
@@ -45,6 +57,8 @@ api/                 HTTP clients, types, caching
   client.go          Base HTTP client (TLS fingerprint, retry, timeout)
   cache.go           Filesystem cache (~/.cache/chli/, SHA256 keys, per-source TTLs)
   parl.go            Parliament OData client
+  parl_agenda.go     parlament.ch SharePoint Search client (future sessions & events)
+  parl_departments.go  Legacy ws-old.parlament.ch client (departments only — not exposed via OData)
   fedlex.go          Fedlex SPARQL client
   fedlex_queries.go  Pre-built SPARQL query templates
   entscheid.go       Court decisions Elasticsearch client
@@ -67,7 +81,7 @@ config/              JSON config loader (~/.config/chli/config.json)
 - **Global flags** (`--json`, `--lang`, `--no-cache`, `--refresh`, `--verbose`, `--debug`, `--quiet`, `--no-color`, `--columns`, `-o format`) are defined in `cmd/root.go`.
 - **Multilingual.** Five languages (de/fr/it/en/rm). Language flows through API calls where the source supports it.
 - **Error handling.** Structured errors on stderr (interactive) or JSON (piped). Retry with exponential backoff + jitter on 429/5xx.
-- **TLS fingerprinting.** `api/client.go` mimics Chrome's TLS config to bypass WAF on parlament.ch. Do not simplify this.
+- **TLS fingerprinting.** `api/client.go` mimics Chrome's TLS over HTTP/1.1 to bypass the WAF on `ws.parlament.ch`. The legacy `ws-old.parlament.ch` endpoint (used only for `chli parl department`) sits behind Akamai and rejects that same Chrome UA over HTTP/1.1 — `api/parl_departments.go` sends a curl-style User-Agent instead. Do not simplify either.
 
 ## Adding a new data source
 
@@ -89,6 +103,8 @@ config/              JSON config loader (~/.config/chli/config.json)
 - **TTY detection drives output.** Piped output is always JSON by default. Terminal output is always tables. `--json` forces JSON in terminal.
 - **Cache is aggressive.** Federal law caches 7 days, parliament 1 hour, others 1-24 hours. `--no-cache` skips reads, `--refresh` forces fresh fetch.
 - **Build metadata.** Version, commit, and build date are injected via ldflags at build time.
+- **Legacy endpoint retained for departments.** The current OData service covers every ws-old category except federal departments, so `chli parl department` is the one command that still hits `ws-old.parlament.ch`. If/when departments appear in OData, remove `api/parl_departments.go` and switch the subcommand over.
+- **SharePoint Search for future sessions.** The OData `Session` entity only exposes sessions once the Parlamentsdienste register them (typically a few months ahead). The public agenda page at `parlament.ch/en/services/agenda` publishes further out (currently through 2027). `api/parl_agenda.go` drives the same anonymous `ProcessQuery` CSOM endpoint the page uses: POST `/_api/contextinfo` for a form digest, then POST the ProcessQuery XML. The payload is sensitive — it must set `SafeQueryPropertiesTemplateUrl=querygroup://webroot/Pages/Agenda.aspx?groupname=Default`, `ListId=263e44d0-b5e1-4c28-bc00-6c894a4c30da`, `SourceId={d4659255-875e-4444-b356-2ed2ce7e439c}`, and reuse the site's query-id `5c701ab9-b60a-4f1a-8a25-78a4d25c798fDefault`, or the server rejects with "List does not exist" / "UseRemoteAPIs permission required". The `chli parl events` command and the `chli parl` / `chli parl session` session lists both merge results from this endpoint into OData output so future sessions are surfaced.
 
 ## Distribution
 

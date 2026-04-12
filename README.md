@@ -41,7 +41,7 @@ make all
 
 | Command | Source | API | Description |
 |---------|--------|-----|-------------|
-| `chli parl` | [parlament.ch](https://www.parlament.ch) | OData v3 | Members, votes, business items, committees |
+| `chli parl` | [parlament.ch](https://www.parlament.ch) | OData v3 (+ legacy JSON for departments) | Members, votes, business items, committees, federal departments |
 | `chli fedlex` | [fedlex.data.admin.ch](https://fedlex.data.admin.ch) | SPARQL | Federal law (SR), Federal Gazette, treaties, consultations |
 | `chli shab` | [shab.ch](https://www.shab.ch) | REST | Official Gazette publications |
 | `chli opendata` | [opendata.swiss](https://opendata.swiss) | CKAN | Public datasets and organizations |
@@ -63,7 +63,23 @@ chli parl tables
 
 # Run a custom OData query
 chli parl query Person --filter "LastName eq 'Berset'" --select "PersonNumber,FirstName,LastName"
+
+# List federal departments (uses legacy ws-old.parlament.ch — not exposed via OData)
+chli parl department
+chli parl department --historic   # include end-dated historic records
+
+# Show current session (or past + next) + command help
+chli parl
+
+# Upcoming parliamentary events from the parlament.ch agenda
+chli parl events                  # all upcoming events
+chli parl events --sessions       # only upcoming sessions (through 2027)
+chli parl events --lang fr        # localized titles and categories
 ```
+
+The `parl session` list and `chli parl` root both merge in future sessions
+scheduled on parlament.ch that are not yet published in the OData Session
+entity (the OData feed usually lags by a few months).
 
 ### Federal Law
 

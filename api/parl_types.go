@@ -112,15 +112,18 @@ type ParlVoting struct {
 
 // ParlSession represents a parliamentary session.
 type ParlSession struct {
-	ID           int     `json:"ID"`
-	Language     string  `json:"Language"`
-	Code         *string `json:"Code"`
-	Title        *string `json:"Title"`
-	Abbreviation *string `json:"Abbreviation"`
-	StartDate    *string `json:"StartDate"`
-	EndDate      *string `json:"EndDate"`
-	Type         *int    `json:"Type"`
-	Modified     string  `json:"Modified"`
+	ID            int     `json:"ID"`
+	Language      string  `json:"Language"`
+	Code          *string `json:"Code"`
+	Title         *string `json:"Title"`
+	SessionName   *string `json:"SessionName"`
+	SessionNumber *int    `json:"SessionNumber"`
+	Abbreviation  *string `json:"Abbreviation"`
+	StartDate     *string `json:"StartDate"`
+	EndDate       *string `json:"EndDate"`
+	Type          *int    `json:"Type"`
+	TypeName      *string `json:"TypeName"`
+	Modified      string  `json:"Modified"`
 }
 
 // ParlCommittee represents a parliamentary committee.

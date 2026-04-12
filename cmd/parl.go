@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -27,6 +28,97 @@ var parlCmd = &cobra.Command{
 	Use:   "parl",
 	Short: "Swiss Parliament open data (OData API)",
 	Long:  "Query the Swiss Parliament OData API at ws.parlament.ch.",
+	Run: func(cmd *cobra.Command, args []string) {
+		printSessionOverview()
+		_ = cmd.Help()
+	},
+}
+
+// printSessionOverview prints the current session, or the most recent past
+// and next upcoming session, to stderr before the help text.
+func printSessionOverview() {
+	if output.ForceJSON || output.OutputFormat == "json" ||
+		output.OutputFormat == "csv" || output.OutputFormat == "tsv" {
+		return
+	}
+	client, err := newParlClient()
+	if err != nil {
+		return
+	}
+	sessions, err := fetchSessionsAround(client, 20)
+	if err != nil || len(sessions) == 0 {
+		return
+	}
+	if cur := findCurrentSession(sessions); cur != nil {
+		output.Section("Current Session")
+		printSessionLine(*cur)
+		fmt.Println()
+		return
+	}
+	past, next := findAdjacentSessions(sessions)
+	output.Section("Parliamentary Sessions")
+	if past != nil {
+		fmt.Print("Past:     ")
+		printSessionLine(*past)
+	}
+	if next != nil {
+		fmt.Print("Next:     ")
+		printSessionLine(*next)
+	} else if agendaNext := fetchNextAgendaSession(client); agendaNext != nil {
+		// OData hasn't registered the next session yet — fall back to
+		// the parlament.ch agenda search, which publishes future dates.
+		fmt.Print("Next:     ")
+		printSessionLine(agendaToSession(*agendaNext))
+	}
+	fmt.Println()
+}
+
+// fetchNextAgendaSession returns the soonest upcoming Session event from the
+// parlament.ch agenda, or nil if the lookup fails or no upcoming session
+// exists. Errors are swallowed: this is an optional enrichment.
+func fetchNextAgendaSession(client *api.Client) *api.ParlAgendaEvent {
+	events, err := client.FetchAgendaEvents("PdAgendaCategoryEN:Session", 20)
+	if err != nil {
+		return nil
+	}
+	now := time.Now().Truncate(24 * time.Hour)
+	var best *api.ParlAgendaEvent
+	for i := range events {
+		e := events[i]
+		if !strings.EqualFold(e.CategoryEn, "Session") {
+			continue
+		}
+		end := e.EndEventDate
+		if end.IsZero() {
+			end = e.EventDate
+		}
+		if end.Before(now) {
+			continue
+		}
+		if best == nil || e.EventDate.Before(best.EventDate) {
+			best = &events[i]
+		}
+	}
+	return best
+}
+
+func printSessionLine(s api.ParlSession) {
+	name := api.Str(s.SessionName)
+	if name == "" {
+		name = api.Str(s.Title)
+	}
+	abbr := api.Str(s.Abbreviation)
+	if abbr != "" {
+		fmt.Printf("%s (%s) — %s to %s\n",
+			name, abbr,
+			api.ParseODataDate(api.Str(s.StartDate)),
+			api.ParseODataDate(api.Str(s.EndDate)))
+		return
+	}
+	fmt.Printf("%s — %s to %s\n",
+		name,
+		api.ParseODataDate(api.Str(s.StartDate)),
+		api.ParseODataDate(api.Str(s.EndDate)))
 }
 
 // --- parl tables ---
@@ -424,11 +516,23 @@ func showPersonProfile(client *api.Client, m api.ParlMemberCouncil) error {
 		output.Table([]string{"Organization", "Function", "Type", "Paid"}, rows)
 	}
 
-	// Lobby badges (G1)
+	// Lobby badges (G1) — deduplicate by beneficiary+org, keep latest ValidTo
 	if len(badges) > 0 {
-		output.Section(fmt.Sprintf("Lobby Access Badges (%d)", len(badges)))
-		rows := make([][]string, len(badges))
-		for i, b := range badges {
+		type badgeKey struct{ beneficiary, group string }
+		best := make(map[badgeKey]api.OpenParlAccessBadge)
+		for _, b := range badges {
+			k := badgeKey{api.Str(b.BeneficiaryPersonFullname), api.Str(b.BeneficiaryGroup)}
+			if prev, ok := best[k]; !ok || api.Str(b.ValidTo) > api.Str(prev.ValidTo) {
+				best[k] = b
+			}
+		}
+		deduped := make([]api.OpenParlAccessBadge, 0, len(best))
+		for _, b := range best {
+			deduped = append(deduped, b)
+		}
+		output.Section(fmt.Sprintf("Lobby Access Badges (%d)", len(deduped)))
+		rows := make([][]string, len(deduped))
+		for i, b := range deduped {
 			beneficiary := api.Str(b.BeneficiaryPersonFullname)
 			group := api.Str(b.BeneficiaryGroup)
 			typeStr := b.Type.Pick(output.Lang)
@@ -1175,6 +1279,115 @@ func renderSeatVisualization(partyOrder []string, parties map[string]*partyBreak
 	fmt.Println()
 }
 
+// --- parl events (upcoming agenda from parlament.ch SharePoint search) ---
+
+var (
+	parlEventsCategory string
+	parlEventsSessions bool
+	parlEventsLimit    int
+	parlEventsAll      bool
+)
+
+var parlEventsCmd = &cobra.Command{
+	Use:   "events",
+	Short: "Upcoming parliamentary events (sessions, press conferences, ceremonies)",
+	Long: `List upcoming events from the parlament.ch agenda.
+
+This queries the SharePoint search endpoint behind the public agenda page and
+returns structured data (event dates, localized titles, category, location).
+It complements 'parl session', which is limited to sessions already registered
+in the OData Session entity — the agenda surfaces further-out scheduling.
+
+Examples:
+  chli parl events                      # all upcoming events
+  chli parl events --sessions           # only upcoming sessions
+  chli parl events --category Session   # same, long form
+  chli parl events --all                # include past events too
+  chli parl events --lang fr            # French titles and categories`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client, err := newParlClient()
+		if err != nil {
+			output.Error(err.Error())
+			os.Exit(1)
+		}
+
+		category := parlEventsCategory
+		if parlEventsSessions && category == "" {
+			category = "Session"
+		}
+
+		query := ""
+		if category != "" {
+			// Quote values containing spaces for KQL.
+			val := category
+			if strings.ContainsAny(val, " \t") {
+				val = `"` + strings.ReplaceAll(val, `"`, `\"`) + `"`
+			}
+			query = "PdAgendaCategoryEN:" + val
+		}
+
+		events, err := client.FetchAgendaEvents(query, parlEventsLimit)
+		if err != nil {
+			output.Error(err.Error())
+			os.Exit(1)
+		}
+
+		// KQL property filters occasionally leak non-matching results,
+		// so also enforce the category client-side for exact matching.
+		if category != "" {
+			filtered := events[:0]
+			for _, e := range events {
+				if strings.EqualFold(e.CategoryEn, category) {
+					filtered = append(filtered, e)
+				}
+			}
+			events = filtered
+		}
+
+		if !parlEventsAll {
+			cutoff := time.Now().Truncate(24 * time.Hour)
+			filtered := events[:0]
+			for _, e := range events {
+				end := e.EndEventDate
+				if end.IsZero() {
+					end = e.EventDate
+				}
+				if !end.Before(cutoff) {
+					filtered = append(filtered, e)
+				}
+			}
+			events = filtered
+		}
+
+		// Sort ascending by EventDate for readability.
+		sort.Slice(events, func(i, j int) bool {
+			return events[i].EventDate.Before(events[j].EventDate)
+		})
+
+		if !output.IsInteractive() {
+			output.JSON(events)
+			return nil
+		}
+
+		output.Section("Parliamentary Agenda")
+		rows := make([][]string, len(events))
+		for i, e := range events {
+			end := ""
+			if !e.EndEventDate.IsZero() {
+				end = e.EndEventDate.Format("2006-01-02")
+			}
+			rows[i] = []string{
+				e.EventDate.Format("2006-01-02"),
+				end,
+				e.LocalizedCategory(output.Lang),
+				output.Truncate(e.LocalizedTitle(output.Lang), 70),
+			}
+		}
+		output.Table([]string{"Start", "End", "Category", "Title"}, rows)
+		return nil
+	},
+}
+
 // --- parl session ---
 
 var parlSessionCurrent bool
@@ -1201,39 +1414,197 @@ Examples:
 			return showSessionAgenda(client, args[0])
 		}
 
-		q := api.NewODataQuery("Session").
-			Top(20).
-			OrderBy("StartDate desc")
-
-		if parlSessionCurrent {
-			q.Top(1)
-		}
-
-		var sessions []api.ParlSession
-		if err := client.ParlQueryInto(q, &sessions); err != nil {
+		sessions, err := fetchSessionsAround(client, 20)
+		if err != nil {
 			output.Error(err.Error())
 			os.Exit(1)
 		}
 
+		if parlSessionCurrent {
+			if cur := findCurrentSession(sessions); cur != nil {
+				sessions = []api.ParlSession{*cur}
+			} else {
+				sessions = nil
+			}
+		}
+
 		if output.IsInteractive() {
 			output.Section("Parliamentary Sessions")
+			now := time.Now()
 			rows := make([][]string, len(sessions))
 			for i, s := range sessions {
+				idStr := ""
+				if s.ID != 0 {
+					idStr = fmt.Sprintf("%d", s.ID)
+				}
 				rows[i] = []string{
-					fmt.Sprintf("%d", s.ID),
-					api.Str(s.Code),
+					idStr,
+					api.Str(s.Abbreviation),
+					api.Str(s.SessionName),
 					api.Str(s.Title),
 					api.ParseODataDate(api.Str(s.StartDate)),
 					api.ParseODataDate(api.Str(s.EndDate)),
+					sessionStatus(s, now),
 				}
 			}
-			output.Table([]string{"ID", "Code", "Title", "Start", "End"}, rows)
+			output.Table([]string{"ID", "Abbr", "Name", "Title", "Start", "End", "Status"}, rows)
 			fmt.Fprintf(os.Stderr, "\nTip: use 'chli parl session <ID>' to see the agenda\n")
 		} else {
 			output.JSON(sessions)
 		}
 		return nil
 	},
+}
+
+// fetchSessionsAround returns sessions ordered by StartDate desc, including
+// upcoming ones. n bounds the total count from OData; any future sessions
+// announced on the parlament.ch agenda but not yet in OData are merged in
+// on top (deduplicated by start date).
+func fetchSessionsAround(client *api.Client, n int) ([]api.ParlSession, error) {
+	q := api.NewODataQuery("Session").
+		Top(n).
+		OrderBy("StartDate desc")
+	var sessions []api.ParlSession
+	if err := client.ParlQueryInto(q, &sessions); err != nil {
+		return nil, err
+	}
+
+	// Merge in future sessions from the agenda search. Failures here are
+	// non-fatal — the OData list is still useful on its own.
+	if extras, err := fetchAgendaSessions(client); err == nil {
+		known := make(map[string]bool, len(sessions))
+		for _, s := range sessions {
+			known[api.ParseODataDate(api.Str(s.StartDate))] = true
+		}
+		for _, e := range extras {
+			start := e.EventDate.Format("2006-01-02")
+			if known[start] {
+				continue
+			}
+			sessions = append(sessions, agendaToSession(e))
+		}
+		sort.Slice(sessions, func(i, j int) bool {
+			return api.ParseODataDate(api.Str(sessions[i].StartDate)) >
+				api.ParseODataDate(api.Str(sessions[j].StartDate))
+		})
+	}
+
+	return sessions, nil
+}
+
+// fetchAgendaSessions returns future sessions announced on the parlament.ch
+// agenda page (which publishes further ahead than the OData Session entity).
+func fetchAgendaSessions(client *api.Client) ([]api.ParlAgendaEvent, error) {
+	events, err := client.FetchAgendaEvents("PdAgendaCategoryEN:Session", 50)
+	if err != nil {
+		return nil, err
+	}
+	now := time.Now().Truncate(24 * time.Hour)
+	out := events[:0]
+	for _, e := range events {
+		if !strings.EqualFold(e.CategoryEn, "Session") {
+			continue
+		}
+		end := e.EndEventDate
+		if end.IsZero() {
+			end = e.EventDate
+		}
+		if end.Before(now) {
+			continue
+		}
+		out = append(out, e)
+	}
+	return out, nil
+}
+
+// agendaSessionDateRE strips the explicit date range from an agenda session
+// title. Example inputs and outputs (all four languages):
+//
+//	"Wintersession: 6. – 23. Dezember 2027"        -> "Wintersession 2027"
+//	"Session d'hiver: 6 – 23 décembre 2027"         -> "Session d'hiver 2027"
+//	"Sessione invernale: 6 – 23 dicembre 2027"      -> "Sessione invernale 2027"
+//	"Winter session: 6 – 23 December 2027"          -> "Winter session 2027"
+var agendaSessionDateRE = regexp.MustCompile(`:\s*.+?\s+(\d{4})\s*$`)
+
+// cleanAgendaSessionTitle removes the trailing date range and keeps the year.
+func cleanAgendaSessionTitle(title string) string {
+	return agendaSessionDateRE.ReplaceAllString(title, " $1")
+}
+
+// agendaToSession synthesizes a ParlSession record from an agenda event so
+// upcoming-but-not-yet-registered sessions surface in the normal list.
+func agendaToSession(e api.ParlAgendaEvent) api.ParlSession {
+	name := cleanAgendaSessionTitle(e.LocalizedTitle(output.Lang))
+	startODataStr := fmt.Sprintf("/Date(%d)/", e.EventDate.UnixMilli())
+	endODataStr := ""
+	if !e.EndEventDate.IsZero() {
+		endODataStr = fmt.Sprintf("/Date(%d)/", e.EndEventDate.UnixMilli())
+	}
+	start := &startODataStr
+	var end *string
+	if endODataStr != "" {
+		end = &endODataStr
+	}
+	return api.ParlSession{
+		SessionName: &name,
+		StartDate:   start,
+		EndDate:     end,
+	}
+}
+
+func parseODataTime(s string) (time.Time, bool) {
+	d := api.ParseODataDate(s)
+	if d == "" {
+		return time.Time{}, false
+	}
+	t, err := time.Parse("2006-01-02", d)
+	if err != nil {
+		return time.Time{}, false
+	}
+	return t, true
+}
+
+func sessionStatus(s api.ParlSession, now time.Time) string {
+	start, okS := parseODataTime(api.Str(s.StartDate))
+	end, okE := parseODataTime(api.Str(s.EndDate))
+	if !okS || !okE {
+		return ""
+	}
+	today := now.Truncate(24 * time.Hour)
+	if !today.Before(start) && !today.After(end) {
+		return "current"
+	}
+	if today.Before(start) {
+		return "upcoming"
+	}
+	return "past"
+}
+
+func findCurrentSession(sessions []api.ParlSession) *api.ParlSession {
+	now := time.Now()
+	for i := range sessions {
+		if sessionStatus(sessions[i], now) == "current" {
+			return &sessions[i]
+		}
+	}
+	return nil
+}
+
+// findAdjacentSessions returns the most recent past session and the next
+// upcoming session, given sessions ordered by StartDate desc.
+func findAdjacentSessions(sessions []api.ParlSession) (past, next *api.ParlSession) {
+	now := time.Now()
+	for i := range sessions {
+		switch sessionStatus(sessions[i], now) {
+		case "upcoming":
+			next = &sessions[i]
+		case "past":
+			if past == nil {
+				past = &sessions[i]
+			}
+		}
+	}
+	return past, next
 }
 
 func showSessionAgenda(client *api.Client, sessionIDStr string) error {
@@ -1297,9 +1668,14 @@ func showSessionAgenda(client *api.Client, sessionIDStr string) error {
 		return nil
 	}
 
-	output.Section(fmt.Sprintf("Session %d: %s", session.ID, api.Str(session.Title)))
-	fmt.Printf("Code: %s | %s to %s\n\n",
-		api.Str(session.Code),
+	sessionLabel := api.Str(session.SessionName)
+	if sessionLabel == "" {
+		sessionLabel = api.Str(session.Title)
+	}
+	output.Section(fmt.Sprintf("Session %d: %s", session.ID, sessionLabel))
+	fmt.Printf("%s | %s | %s to %s\n\n",
+		api.Str(session.Abbreviation),
+		api.Str(session.Title),
 		api.ParseODataDate(api.Str(session.StartDate)),
 		api.ParseODataDate(api.Str(session.EndDate)))
 
@@ -1543,12 +1919,13 @@ Or use --from / --to for explicit date ranges (YYYY-MM-DD).`,
 			for i, s := range sessions {
 				rows[i] = []string{
 					api.Str(s.Abbreviation),
+					api.Str(s.SessionName),
 					api.Str(s.Title),
 					api.ParseODataDate(api.Str(s.StartDate)),
 					api.ParseODataDate(api.Str(s.EndDate)),
 				}
 			}
-			output.Table([]string{"Abbr", "Title", "Start", "End"}, rows)
+			output.Table([]string{"Abbr", "Name", "Title", "Start", "End"}, rows)
 		}
 
 		return nil
@@ -1594,6 +1971,63 @@ var parlInterestCmd = &cobra.Command{
 			fmt.Println("  Source: OpenParlData.ch")
 		} else {
 			output.JSON(interests)
+		}
+		return nil
+	},
+}
+
+// --- parl department (federal departments via legacy ws-old endpoint) ---
+
+var parlDepartmentHistoric bool
+
+var parlDepartmentCmd = &cobra.Command{
+	Use:   "department",
+	Short: "List federal departments (data source: ws-old.parlament.ch)",
+	Long: `List federal departments. The current OData service at ws.parlament.ch does
+not expose departments, so this command uses the legacy ws-old.parlament.ch
+endpoint. Use --historic to include end-dated historic records.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		client, err := newParlClient()
+		if err != nil {
+			output.Error(err.Error())
+			os.Exit(1)
+		}
+
+		depts, err := client.ParlDepartments(parlDepartmentHistoric)
+		if err != nil {
+			output.Error(err.Error())
+			os.Exit(1)
+		}
+
+		if output.IsInteractive() {
+			if parlDepartmentHistoric {
+				output.Section("Federal Departments (historic)")
+				rows := make([][]string, len(depts))
+				for i, d := range depts {
+					rows[i] = []string{
+						fmt.Sprintf("%d", d.ID),
+						d.Abbreviation,
+						output.Truncate(d.Name, 55),
+						api.ParseODataDate(d.From),
+						api.ParseODataDate(d.To),
+					}
+				}
+				output.Table([]string{"ID", "Abbr", "Name", "From", "To"}, rows)
+			} else {
+				output.Section("Federal Departments")
+				rows := make([][]string, len(depts))
+				for i, d := range depts {
+					rows[i] = []string{
+						fmt.Sprintf("%d", d.ID),
+						d.Abbreviation,
+						output.Truncate(d.Name, 70),
+					}
+				}
+				output.Table([]string{"ID", "Abbr", "Name"}, rows)
+			}
+			fmt.Println("  Source: ws-old.parlament.ch")
+		} else {
+			output.JSON(depts)
 		}
 		return nil
 	},
@@ -1649,6 +2083,15 @@ func init() {
 	parlSummaryCmd.Flags().StringVar(&parlSummaryFrom, "from", "", "Start date (YYYY-MM-DD)")
 	parlSummaryCmd.Flags().StringVar(&parlSummaryTo, "to", "", "End date (YYYY-MM-DD)")
 
+	// department flags
+	parlDepartmentCmd.Flags().BoolVar(&parlDepartmentHistoric, "historic", false, "Include historic departments (with From/To dates)")
+
+	// events flags
+	parlEventsCmd.Flags().StringVar(&parlEventsCategory, "category", "", "Filter by category (Session, Event, 'Press conference advance notice', ...)")
+	parlEventsCmd.Flags().BoolVar(&parlEventsSessions, "sessions", false, "Shortcut for --category=Session")
+	parlEventsCmd.Flags().IntVar(&parlEventsLimit, "limit", 50, "Max events to return")
+	parlEventsCmd.Flags().BoolVar(&parlEventsAll, "all", false, "Include past events (default: upcoming only)")
+
 	// Wire up subcommands.
 	parlCmd.AddCommand(parlTablesCmd)
 	parlCmd.AddCommand(parlSchemaCmd)
@@ -1660,6 +2103,8 @@ func init() {
 	parlCmd.AddCommand(parlCommitteeCmd)
 	parlCmd.AddCommand(parlSummaryCmd)
 	parlCmd.AddCommand(parlInterestCmd)
+	parlCmd.AddCommand(parlDepartmentCmd)
+	parlCmd.AddCommand(parlEventsCmd)
 
 	rootCmd.AddCommand(parlCmd)
 }

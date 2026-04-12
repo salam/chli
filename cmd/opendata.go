@@ -55,6 +55,7 @@ var opendataSearchCmd = &cobra.Command{
 				})
 			}
 			output.Table(headers, rows)
+			fmt.Println("\nUse: chli opendata dataset <name> for details")
 		} else {
 			output.JSON(result)
 		}
@@ -90,7 +91,7 @@ var opendataDatasetCmd = &cobra.Command{
 			fmt.Printf("Organization: %s\n", ds.Organization.Title.Pick(lang))
 			fmt.Printf("Issued:       %s\n", ds.Issued)
 			fmt.Printf("Modified:     %s\n", ds.MetadataModified)
-			fmt.Printf("Description:  %s\n", output.Truncate(ds.Description.Pick(lang), 200))
+			fmt.Printf("Description:  %s\n", ds.Description.Pick(lang))
 
 			if len(ds.Resources) > 0 {
 				output.Section("Resources")

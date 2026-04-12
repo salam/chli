@@ -78,17 +78,16 @@ var shabSearchCmd = &cobra.Command{
 			})
 		}
 		output.Table(headers, rows)
+		fmt.Println("\nUse: chli shab publication <number> for details")
 		return nil
 	},
 }
 
 var shabPublicationCmd = &cobra.Command{
-	Use:   "publication <id>",
-	Short: "Fetch a single SHAB publication by UUID",
+	Use:   "publication <number>",
+	Short: "Fetch a single SHAB publication by number or UUID",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		id := args[0]
-
 		client, err := api.NewClient()
 		if err != nil {
 			output.Error(err.Error())
@@ -96,6 +95,12 @@ var shabPublicationCmd = &cobra.Command{
 		}
 		client.NoCache = noCache
 		client.Refresh = refresh
+
+		id, err := client.SHABResolveID(args[0])
+		if err != nil {
+			output.Error(err.Error())
+			os.Exit(1)
+		}
 
 		pub, raw, err := client.SHABPublicationParsed(id)
 		if err != nil {

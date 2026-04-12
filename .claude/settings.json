@@ -115,7 +115,9 @@
       "Bash(./chli cache:*)",
       "Bash(./chli bookmark:*)",
       "Bash(git add:*)",
-      "Bash(git commit -m ':*)"
+      "Bash(git commit -m ':*)",
+      "Bash(wc -l /Users/matthias/Development/chli/cmd/*.go /Users/matthias/Development/chli/api/*.go)",
+      "WebFetch(domain:docs.openclaw.ai)"
     ],
     "additionalDirectories": [
       "/Users/matthias/.cache/chli"

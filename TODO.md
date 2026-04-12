@@ -19,6 +19,9 @@
 - [x] Configurable output columns per command
 - [x] Bookmark/watch functionality for parliament business items
 - [x] RSS/feed mode for new SHAB publications or court decisions
+- [x] `chli parl department` — List federal departments via legacy ws-old.parlament.ch fallback (OData doesn't expose them)
+- [x] `chli parl events` — List upcoming agenda events (sessions, press conferences, ceremonies) via the parlament.ch SharePoint Search endpoint
+- [x] Surface future-scheduled sessions (that OData has not yet registered) in `chli parl` and `chli parl session` by merging the agenda search results
 
 ## Quality of Life
 
@@ -38,3 +41,9 @@
 - [x] Homebrew formula for macOS installation
 - [x] Nix package / flake
 - [x] goreleaser configuration for automated GitHub Releases
+
+## Follow-ups
+
+- [ ] Watch for a `Department` entity in `ws.parlament.ch` OData `$metadata`; migrate `chli parl department` off the legacy endpoint when it appears.
+- [ ] Watch for future sessions to appear in the OData `Session` entity earlier; trim the agenda-search merge in `fetchSessionsAround` once the lag is gone.
+- [ ] Consider caching the agenda SharePoint `ProcessQuery` response (currently uncached because the form digest is short-lived).
