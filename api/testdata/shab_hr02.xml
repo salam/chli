@@ -1,0 +1,133 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<HR02:publication xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:HR02="https://shab.ch/shab/HR02-export" xsi:schemaLocation="https://shab.ch/shab/HR02-export https://amtsblattportal.ch/api/v1/schemas/shab/1.26/HR02-export.xsd">
+<meta>
+  <id>c27f4008-2dbc-4da4-af9e-9be31ea16ec2</id>
+  <rubric>HR</rubric>
+  <subRubric>HR02</subRubric>
+  <language>fr</language>
+  <registrationOffice>
+    <id>e15a629a-a08d-11e8-aa11-0050569d3c43</id>
+    <displayName>Bundesamt für Justiz (BJ), Eidgenössisches Amt für das Handelsregister</displayName>
+    <street>Bundesrain</street>
+    <streetNumber>20</streetNumber>
+    <swissZipCode>3003</swissZipCode>
+    <town>Bern</town>
+    <containsPostOfficeBox>false</containsPostOfficeBox>
+  </registrationOffice>
+  <publicationNumber>HR02-1006615899</publicationNumber>
+  <publicationState>PUBLISHED</publicationState>
+  <publicationDate>2026-04-02</publicationDate>
+  <primaryTenantCode>shab</primaryTenantCode>
+  <legalRemedy>La mutation de l'entité juridique mentionnée a été effectuée dans le registre du commerce. &lt;br />Publication selon les art. 9 et 35 ORC.</legalRemedy>
+  <cantons>NE</cantons>
+  <title>
+    <de>Mutation Société coopérative Migros Neuchâtel-Fribourg, Laténa</de>
+    <en>Change Société coopérative Migros Neuchâtel-Fribourg, Laténa</en>
+    <it>Cambiamenti Société coopérative Migros Neuchâtel-Fribourg, Laténa</it>
+    <fr>Mutation Société coopérative Migros Neuchâtel-Fribourg, Laténa</fr>
+  </title>
+</meta>
+<content>
+  <testImport>false</testImport>
+  <journalNumber>1319</journalNumber>
+  <journalDate>2026-03-30</journalDate>
+  <publicationText>Société coopérative Migros Neuchâtel-Fribourg, à Laténa, CHE-105.925.472 (FOSC du 08.01.2026, p. 0/1006532173). La procuration de Moret Sébastien est radiée.</publicationText>
+  <commonsNew>
+    <company>
+      <name>Société coopérative Migros Neuchâtel-Fribourg</name>
+      <uid>CHE-105.925.472</uid>
+      <uidOrganisationId>105925472</uidOrganisationId>
+      <uidOrganisationIdCategorie>CHE</uidOrganisationIdCategorie>
+      <code13>CH64510013604</code13>
+      <seat>Laténa</seat>
+      <legalForm>0108</legalForm>
+      <noAddress>false</noAddress>
+      <address>
+        <street>Marin-Epagnier, rue des Perveuils</street>
+        <houseNumber>2</houseNumber>
+        <swissZipCode>2074</swissZipCode>
+        <town>Marin-Epagnier</town>
+      </address>
+    </company>
+    <purpose>de mettre par une action commune, à la disposition de ses membres et de la population en général, des marchandises et des services de qualité à des conditions avantageuses, ainsi que des prestations culturelles; de promouvoir les idéaux et intérêts d'ordre économique, social et culturel de ses membres et de la population en général et de faire valoir auprès des autorités et des associations économiques en faisant appel, s'il y a lieu, à l'exercice des droits politiques des membres. Son activité se déroule principalement dans le canton de Neuchâtel et Fribourg.</purpose>
+    <revision>
+      <optingOut>false</optingOut>
+      <revisionCompany>
+        <name>Ernst &amp; Young SA</name>
+        <country>CH</country>
+        <uid>CHE294400879</uid>
+        <uidOrganisationId>294400879</uidOrganisationId>
+        <uidOrganisationIdCategorie>CHE</uidOrganisationIdCategorie>
+      </revisionCompany>
+    </revision>
+  </commonsNew>
+  <commonsActual>
+    <company>
+      <name>Société coopérative Migros Neuchâtel-Fribourg</name>
+      <uid>CHE-105.925.472</uid>
+      <uidOrganisationId>105925472</uidOrganisationId>
+      <uidOrganisationIdCategorie>CHE</uidOrganisationIdCategorie>
+      <code13>CH64510013604</code13>
+      <seat>Laténa</seat>
+      <legalForm>0108</legalForm>
+      <noAddress>false</noAddress>
+      <address>
+        <street>Marin-Epagnier, rue des Perveuils</street>
+        <houseNumber>2</houseNumber>
+        <swissZipCode>2074</swissZipCode>
+        <town>Marin-Epagnier</town>
+      </address>
+    </company>
+    <purpose>de mettre par une action commune, à la disposition de ses membres et de la population en général, des marchandises et des services de qualité à des conditions avantageuses, ainsi que des prestations culturelles; de promouvoir les idéaux et intérêts d'ordre économique, social et culturel de ses membres et de la population en général et de faire valoir auprès des autorités et des associations économiques en faisant appel, s'il y a lieu, à l'exercice des droits politiques des membres. Son activité se déroule principalement dans le canton de Neuchâtel et Fribourg.</purpose>
+    <revision>
+      <optingOut>false</optingOut>
+    </revision>
+  </commonsActual>
+  <lastFosc>
+    <lastFoscDate>2026-01-08</lastFoscDate>
+    <lastFoscNumber>4</lastFoscNumber>
+    <lastFoscSequence>1006532173</lastFoscSequence>
+  </lastFosc>
+  <transaction>
+    <update>
+      <changements>
+        <others>true</others>
+        <nameChanged>false</nameChanged>
+        <uidChanged>false</uidChanged>
+        <legalStatusChanged>false</legalStatusChanged>
+        <seatChanged>false</seatChanged>
+        <addressChanged>false</addressChanged>
+        <purposeChanged>false</purposeChanged>
+        <capitalChanged>
+          <nominal>false</nominal>
+          <paid>false</paid>
+          <other>false</other>
+        </capitalChanged>
+        <statusChanged>
+          <bankruptcy>
+            <dissolution>false</dissolution>
+            <dismissal>false</dismissal>
+            <revocation>false</revocation>
+            <cancellation>false</cancellation>
+            <summary>false</summary>
+          </bankruptcy>
+          <liquidation>
+            <dissolution>
+              <nonExceptional>false</nonExceptional>
+              <or731b>false</or731b>
+              <hregv153b>false</hregv153b>
+            </dissolution>
+            <revocation>false</revocation>
+          </liquidation>
+          <suspension>false</suspension>
+          <reentry>false</reentry>
+          <reapplication>false</reapplication>
+        </statusChanged>
+      </changements>
+    </update>
+  </transaction>
+  <senderOffice>
+    <officeName>Registre du commerce du Canton de Neuchâtel</officeName>
+  </senderOffice>
+</content>
+</HR02:publication>
