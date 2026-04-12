@@ -207,6 +207,11 @@ var shabPublicationCmd = &cobra.Command{
 			}
 		}
 
+		if diff, _ := cmd.Flags().GetBool("diff"); diff {
+			printDiff(diffCommons(pub.Content.CommonsActual, pub.Content.CommonsNew))
+			fmt.Println()
+		}
+
 		text := pub.Content.PublicationText.PickText(output.Lang)
 		if text == "" && pub.Content.Message != "" {
 			text = pub.Content.Message
@@ -266,6 +271,8 @@ func init() {
 	shabSearchCmd.Flags().String("rubric", "", "Filter by rubric codes (comma-separated, e.g. HR,SB)")
 	shabSearchCmd.Flags().Int("page", 0, "Page number (0-based)")
 	shabSearchCmd.Flags().Int("size", 10, "Results per page")
+
+	shabPublicationCmd.Flags().Bool("diff", false, "Show field-level diff between previous and current state (HR only)")
 
 	shabCmd.AddCommand(shabSearchCmd)
 	shabCmd.AddCommand(shabPublicationCmd)
