@@ -108,14 +108,19 @@ var shabPublicationCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		// Fall back to raw XML if parsing failed
-		if pub == nil {
-			fmt.Println(string(raw))
+		if output.ForceJSON || !output.IsInteractive() {
+			tree, mapErr := api.XMLToMap(raw)
+			if mapErr != nil {
+				output.Error(mapErr.Error())
+				os.Exit(1)
+			}
+			output.JSON(tree)
 			return nil
 		}
 
-		if output.ForceJSON || !output.IsInteractive() {
-			output.JSON(pub)
+		// Fall back to raw XML if parsing failed
+		if pub == nil {
+			fmt.Println(string(raw))
 			return nil
 		}
 
@@ -134,36 +139,17 @@ var shabPublicationCmd = &cobra.Command{
 			}
 			fmt.Printf("Rubric:       %s\n", label)
 		}
-		if m.RegistrationOffice != "" {
-			fmt.Printf("Office:       %s\n", m.RegistrationOffice)
+		if m.RegistrationOffice != nil && m.RegistrationOffice.DisplayName != "" {
+			fmt.Printf("Office:       %s\n", m.RegistrationOffice.DisplayName)
 		}
 		fmt.Println()
 
-		// Pick text by language preference
-		txt := pub.Content.SHABContent.PublicationText
-		var text string
-		switch output.Lang {
-		case "fr":
-			text = txt.FR
-		case "it":
-			text = txt.IT
-		default:
-			text = txt.DE
-		}
-		if text == "" {
-			// Fallback: try any available language
-			if txt.DE != "" {
-				text = txt.DE
-			} else if txt.FR != "" {
-				text = txt.FR
-			} else if txt.IT != "" {
-				text = txt.IT
-			}
+		text := pub.Content.PublicationText.PickText(output.Lang)
+		if text == "" && pub.Content.Message != "" {
+			text = pub.Content.Message
 		}
 		if text != "" {
 			fmt.Println(text)
-		} else if pub.Content.SHABContent.Message != "" {
-			fmt.Println(pub.Content.SHABContent.Message)
 		} else {
 			// Nothing parsed, show raw XML as last resort
 			fmt.Println(string(raw))
