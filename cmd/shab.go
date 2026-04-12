@@ -59,7 +59,7 @@ var shabSearchCmd = &cobra.Command{
 			return nil
 		}
 
-		headers := []string{"Number", "Rubric", "Title", "Date", "Canton"}
+		headers := []string{"Number", "Rubric", "Title", "Date", "Canton", "URL"}
 		rows := make([][]string, 0, len(result.Content))
 		for _, pub := range result.Content {
 			m := pub.Meta
@@ -69,12 +69,14 @@ var shabSearchCmd = &cobra.Command{
 				date = m.PublicationDate[:10]
 			}
 			cantons := strings.Join(m.Cantons, ",")
+			url := api.SHABPublicationURL(m.ID)
 			rows = append(rows, []string{
 				m.PublicationNumber,
 				m.Rubric,
 				title,
 				date,
 				cantons,
+				output.Hyperlink(url, m.PublicationNumber),
 			})
 		}
 		output.Table(headers, rows)
@@ -126,6 +128,8 @@ var shabPublicationCmd = &cobra.Command{
 
 		// Interactive display
 		m := pub.Meta
+		url := api.SHABPublicationURL(m.ID)
+
 		if m.PublicationNumber != "" {
 			fmt.Printf("Publication:  %s\n", m.PublicationNumber)
 		}
@@ -139,19 +143,77 @@ var shabPublicationCmd = &cobra.Command{
 			}
 			fmt.Printf("Rubric:       %s\n", label)
 		}
+		if m.Cantons != "" {
+			fmt.Printf("Cantons:      %s\n", m.Cantons)
+		}
+		if title := m.Title.Pick(output.Lang); title != "" {
+			fmt.Printf("Title:        %s\n", title)
+		}
 		if m.RegistrationOffice != nil && m.RegistrationOffice.DisplayName != "" {
 			fmt.Printf("Office:       %s\n", m.RegistrationOffice.DisplayName)
 		}
+		if url != "" {
+			fmt.Printf("URL:          %s\n", output.Hyperlink(url, url))
+		}
 		fmt.Println()
+
+		if cn := pub.Content.CommonsNew; cn != nil && cn.Company != nil {
+			co := cn.Company
+			fmt.Printf("Company:      %s", co.Name)
+			if co.UID != "" {
+				fmt.Printf("  (%s)", co.UID)
+			}
+			fmt.Println()
+			if co.Seat != "" || co.LegalForm != "" {
+				line := co.Seat
+				if co.LegalForm != "" {
+					if line != "" {
+						line += "  "
+					}
+					line += "legal form " + co.LegalForm
+				}
+				fmt.Printf("Seat:         %s\n", line)
+			}
+			if a := co.Address; a != nil {
+				parts := []string{}
+				if a.Street != "" {
+					s := a.Street
+					if a.HouseNumber != "" {
+						s += " " + a.HouseNumber
+					}
+					parts = append(parts, s)
+				}
+				if a.SwissZipCode != "" || a.Town != "" {
+					parts = append(parts, strings.TrimSpace(a.SwissZipCode+" "+a.Town))
+				}
+				if len(parts) > 0 {
+					fmt.Printf("Address:      %s\n", strings.Join(parts, ", "))
+				}
+			}
+			if cn.Revision != nil && cn.Revision.RevisionCompany != nil {
+				rc := cn.Revision.RevisionCompany
+				line := rc.Name
+				if rc.UID != "" {
+					line += "  (" + rc.UID + ")"
+				}
+				fmt.Printf("Auditor:      %s\n", line)
+			}
+			fmt.Println()
+		}
+
+		if tx := pub.Content.Transaction; tx != nil && tx.Update != nil {
+			if labels := tx.Update.Changements.ChangedLabels(); len(labels) > 0 {
+				fmt.Printf("Changes:      %s\n\n", strings.Join(labels, ", "))
+			}
+		}
 
 		text := pub.Content.PublicationText.PickText(output.Lang)
 		if text == "" && pub.Content.Message != "" {
 			text = pub.Content.Message
 		}
 		if text != "" {
-			fmt.Println(text)
+			fmt.Println(strings.TrimSpace(text))
 		} else {
-			// Nothing parsed, show raw XML as last resort
 			fmt.Println(string(raw))
 		}
 		return nil
