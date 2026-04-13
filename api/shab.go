@@ -98,3 +98,43 @@ func (c *Client) SHABPublicationParsed(id string) (*SHABPublicationXML, []byte, 
 	}
 	return &pub, data, nil
 }
+
+// SHABHistory walks the lastFosc back-pointer chain starting from id and
+// returns the publications newest-first. If depth > 0 the walk stops after
+// that many hops. Unresolved references terminate the walk silently.
+func (c *Client) SHABHistory(id string, depth int) ([]*SHABPublicationXML, error) {
+	var chain []*SHABPublicationXML
+	visited := map[string]bool{}
+	curID := id
+	hops := 0
+	for curID != "" {
+		if visited[curID] {
+			break // guard against cycles
+		}
+		visited[curID] = true
+		pub, _, err := c.SHABPublicationParsed(curID)
+		if err != nil {
+			if len(chain) == 0 {
+				return nil, err
+			}
+			break
+		}
+		if pub == nil {
+			break
+		}
+		chain = append(chain, pub)
+		if pub.Content.LastFosc == nil || pub.Content.LastFosc.Sequence == "" {
+			break
+		}
+		if depth > 0 && hops+1 >= depth {
+			break
+		}
+		hops++
+		next, err := c.SHABResolveID(pub.Content.LastFosc.Sequence)
+		if err != nil || next == "" {
+			break
+		}
+		curID = next
+	}
+	return chain, nil
+}
