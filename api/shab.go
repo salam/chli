@@ -130,7 +130,11 @@ func (c *Client) SHABHistory(id string, depth int) ([]*SHABPublicationXML, error
 			break
 		}
 		hops++
-		next, err := c.SHABResolveID(pub.Content.LastFosc.Sequence)
+		seq := pub.Content.LastFosc.Sequence
+		if pub.Meta.SubRubric != "" && !strings.Contains(seq, "-") {
+			seq = pub.Meta.SubRubric + "-" + seq
+		}
+		next, err := c.SHABResolveID(seq)
 		if err != nil || next == "" {
 			break
 		}
