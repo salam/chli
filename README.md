@@ -47,6 +47,10 @@ make all
 | `chli opendata` | [opendata.swiss](https://opendata.swiss) | CKAN | Public datasets and organizations |
 | `chli entscheid` | [entscheidsuche.ch](https://entscheidsuche.ch) | Elasticsearch | Court decisions across all 26 cantons |
 | `chli swissreg` | [swissreg.ch](https://www.swissreg.ch) | REST (public search backend) | Trademarks, patents, designs, and their publications |
+| `chli zefix` | [zefix.admin.ch](https://www.zefix.admin.ch) | REST (HTTP Basic) | Swiss commercial register — search and UID/CHID lookup |
+| `chli uid` | [zefix.admin.ch](https://www.zefix.admin.ch) | REST (HTTP Basic) | UID-centric entry point; shares credentials with `zefix` |
+| `chli lindas` | [lindas.admin.ch](https://lindas.admin.ch) | SPARQL | Federal linked-data hub (IPI, BFS, procurement, energy, …) |
+| `chli geo` | [api3.geo.admin.ch](https://api3.geo.admin.ch) | REST | Address/place search, layer listing, identify-by-coordinate |
 
 ## Quick Start
 
@@ -126,6 +130,7 @@ chli shab search "Konkurs"
 chli shab search "AG" --rubric HR,KK
 
 # Full publication detail — company, seat, address, auditor, changes
+# (accepts the publication number or the internal UUID)
 chli shab publication HR02-1006615899
 
 # Field-level diff between prior and new state (HR mutations)
@@ -165,6 +170,63 @@ multiple), `--filed-after YYYY-MM-DD`, `--filed-before YYYY-MM-DD`,
 Pagination beyond `--max 64` is not supported: the backend uses an opaque
 Transit+JSON cursor that chli does not decode. Refine the query instead.
 
+### Commercial Register (Zefix) & UID
+
+Zefix and the UID lookup share the same HTTP Basic credentials (register at
+[zefix.admin.ch](https://www.zefix.admin.ch), see the API section).
+
+```bash
+# Store credentials once (prompts for user + password, password echo-suppressed)
+chli zefix login                       # or: chli uid login — same keystore entry
+chli zefix status
+chli zefix logout
+
+# Alternatively, export env vars (take precedence over the keystore)
+export ZEFIX_USER=... ZEFIX_PASS=...
+
+# Search the commercial register by company name
+chli zefix search "Migros" --canton ZH --max 50
+
+# Look up by UID or CHID
+chli zefix company CHE-105.817.537
+chli uid lookup CHE-105.817.537
+
+# Normalize / pretty-format a UID (no API call)
+chli uid format che105817537           # → CHE-105.817.537
+```
+
+### LINDAS (linked open data)
+
+```bash
+# List datasets exposed by LINDAS
+chli lindas datasets
+
+# Raw SPARQL — inline or from a file (same pattern as `fedlex sparql`)
+chli lindas sparql "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10"
+chli lindas sparql @my-query.rq
+```
+
+LINDAS aggregates many admin linked-data graphs into one SPARQL endpoint:
+IPI trademarks/patents, BFS statistics, public procurement, energy data,
+and more.
+
+### Geoportal (geo.admin.ch)
+
+```bash
+# Address / place search
+chli geo search "Bundesplatz 3, Bern"
+
+# Feature search across a specific layer type
+chli geo search "Rütli" --type featuresearch --limit 5
+
+# List available map layers (useful to find layer IDs for `identify`)
+chli geo layers
+
+# Identify features at a WGS84 coordinate (lon,lat)
+chli geo identify 7.4446,46.9479
+chli geo identify 7.4446,46.9479 --layers ch.kantone.cantonal-boundaries
+```
+
 ### Open Data
 
 ```bash
@@ -180,25 +242,36 @@ chli opendata orgs
 
 ## Output
 
-chli automatically adapts its output:
+chli adapts its output automatically, with explicit override via `-o`:
 
 - **Terminal (TTY):** Human-readable tables with aligned columns
-- **Piped / `--json`:** Full JSON for scripting and further processing
+- **Piped:** JSON by default
+- **`-o <format>`:** Force `json`, `yaml`, `csv`, `tsv`, or `md` (GitHub-flavoured markdown table). `--json` is a shortcut for `-o json`.
 
 ```bash
-# Table output in terminal
+# Table in terminal
 chli parl person --party "SP"
 
-# JSON for scripting
+# JSON (same data, scriptable)
 chli parl person --party "SP" --json
 chli parl person --party "SP" | jq '.[] | .FirstName'
+
+# YAML
+chli zefix search "Migros" -o yaml
+
+# Markdown table (paste into docs or GitHub issues)
+chli geo layers -o md
+
+# CSV export
+chli entscheid search "Mietrecht" -o csv > cases.csv
 ```
 
 ## Global Flags
 
 | Flag | Description |
 |------|-------------|
-| `--json` | Force JSON output |
+| `--json` | Force JSON output (shortcut for `-o json`) |
+| `-o <fmt>` | Output format: `json`, `yaml`, `csv`, `tsv`, `md` |
 | `--no-color` | Disable colored output |
 | `--lang <code>` | Language: `de` (default), `fr`, `it`, `en`, `rm` |
 | `--no-cache` | Skip reading from cache |

@@ -187,7 +187,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&output.Lang, "lang", "de", "Language (de, fr, it, en, rm)")
 	rootCmd.PersistentFlags().BoolVar(&noCache, "no-cache", false, "Skip cache reads")
 	rootCmd.PersistentFlags().BoolVar(&refresh, "refresh", false, "Force cache refresh")
-	rootCmd.PersistentFlags().StringVarP(&output.OutputFormat, "output", "o", "", "Output format: json, csv, tsv")
+	rootCmd.PersistentFlags().StringVarP(&output.OutputFormat, "output", "o", "", "Output format: json, yaml, csv, tsv, md")
 	rootCmd.PersistentFlags().BoolVarP(&output.Quiet, "quiet", "q", false, "Suppress headers and section titles, output data rows only")
 	rootCmd.PersistentFlags().StringVar(&output.Columns, "columns", "", "Comma-separated list of columns to display")
 	rootCmd.PersistentFlags().BoolVarP(&output.Verbose, "verbose", "v", false, "Verbose output")

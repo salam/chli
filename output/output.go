@@ -7,6 +7,9 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"reflect"
+	"sort"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 )
@@ -40,7 +43,11 @@ func color(c, s string) string {
 }
 
 func IsInteractive() bool {
-	if ForceJSON || OutputFormat == "json" || OutputFormat == "csv" || OutputFormat == "tsv" {
+	switch OutputFormat {
+	case "json", "csv", "tsv", "yaml", "yml", "md", "markdown":
+		return false
+	}
+	if ForceJSON {
 		return false
 	}
 	fi, _ := os.Stdout.Stat()
@@ -199,6 +206,181 @@ func JSON(v any) {
 	enc.Encode(v)
 }
 
+// YAML emits any value as YAML by round-tripping through JSON (to honour
+// json tags) and then recursively rendering the generic tree. No external
+// dependency — sufficient for the flat/nested primitive-heavy shapes the
+// CLI produces.
+func YAML(v any) {
+	b, err := json.Marshal(v)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "yaml: marshal:", err)
+		return
+	}
+	var tree any
+	if err := json.Unmarshal(b, &tree); err != nil {
+		fmt.Fprintln(os.Stderr, "yaml: unmarshal:", err)
+		return
+	}
+	writeYAML(os.Stdout, tree, 0, false)
+}
+
+func writeYAML(w io.Writer, v any, indent int, inList bool) {
+	pad := strings.Repeat("  ", indent)
+	switch x := v.(type) {
+	case nil:
+		fmt.Fprintln(w, "null")
+	case map[string]any:
+		if len(x) == 0 {
+			fmt.Fprintln(w, "{}")
+			return
+		}
+		keys := make([]string, 0, len(x))
+		for k := range x {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+		for i, k := range keys {
+			prefix := pad
+			if i == 0 && inList {
+				prefix = ""
+			}
+			val := x[k]
+			if isScalar(val) {
+				fmt.Fprintf(w, "%s%s: %s\n", prefix, yamlKey(k), yamlScalar(val))
+			} else if isEmpty(val) {
+				fmt.Fprintf(w, "%s%s: %s\n", prefix, yamlKey(k), emptyLiteral(val))
+			} else {
+				fmt.Fprintf(w, "%s%s:\n", prefix, yamlKey(k))
+				writeYAML(w, val, indent+1, false)
+			}
+		}
+	case []any:
+		if len(x) == 0 {
+			fmt.Fprintln(w, "[]")
+			return
+		}
+		for _, item := range x {
+			if isScalar(item) {
+				fmt.Fprintf(w, "%s- %s\n", pad, yamlScalar(item))
+			} else {
+				fmt.Fprintf(w, "%s- ", pad)
+				writeYAML(w, item, indent+1, true)
+			}
+		}
+	default:
+		if reflect.ValueOf(v).Kind() == reflect.Invalid {
+			fmt.Fprintln(w, "null")
+			return
+		}
+		fmt.Fprintln(w, yamlScalar(v))
+	}
+}
+
+func isScalar(v any) bool {
+	switch v.(type) {
+	case nil, bool, string, float64, float32, int, int64, int32:
+		return true
+	}
+	return false
+}
+
+func isEmpty(v any) bool {
+	switch x := v.(type) {
+	case map[string]any:
+		return len(x) == 0
+	case []any:
+		return len(x) == 0
+	}
+	return false
+}
+
+func emptyLiteral(v any) string {
+	if _, ok := v.([]any); ok {
+		return "[]"
+	}
+	return "{}"
+}
+
+func yamlScalar(v any) string {
+	switch x := v.(type) {
+	case nil:
+		return "null"
+	case bool:
+		if x {
+			return "true"
+		}
+		return "false"
+	case string:
+		return yamlString(x)
+	case float64:
+		if x == float64(int64(x)) {
+			return strconv.FormatInt(int64(x), 10)
+		}
+		return strconv.FormatFloat(x, 'f', -1, 64)
+	default:
+		return fmt.Sprintf("%v", v)
+	}
+}
+
+func yamlKey(k string) string {
+	if k == "" || strings.ContainsAny(k, ": #\n\"'{}[],&*!|>%@`") {
+		return strconv.Quote(k)
+	}
+	return k
+}
+
+func yamlString(s string) string {
+	if s == "" {
+		return `""`
+	}
+	if strings.ContainsAny(s, "\n\"\\") || strings.HasPrefix(s, " ") || strings.HasSuffix(s, " ") {
+		return strconv.Quote(s)
+	}
+	// Reserved words / ambiguous scalars need quoting
+	switch strings.ToLower(s) {
+	case "true", "false", "null", "yes", "no", "on", "off", "~":
+		return strconv.Quote(s)
+	}
+	if _, err := strconv.ParseFloat(s, 64); err == nil {
+		return strconv.Quote(s)
+	}
+	if strings.ContainsAny(s, ":#") {
+		return strconv.Quote(s)
+	}
+	return s
+}
+
+// Markdown emits a GitHub-flavoured markdown table.
+func Markdown(headers []string, rows [][]string) {
+	if len(headers) == 0 {
+		return
+	}
+	escape := func(s string) string {
+		s = strings.ReplaceAll(s, "|", `\|`)
+		s = strings.ReplaceAll(s, "\n", " ")
+		return s
+	}
+	esc := make([]string, len(headers))
+	for i, h := range headers {
+		esc[i] = escape(h)
+	}
+	fmt.Fprintf(os.Stdout, "| %s |\n", strings.Join(esc, " | "))
+	sep := make([]string, len(headers))
+	for i := range sep {
+		sep[i] = "---"
+	}
+	fmt.Fprintf(os.Stdout, "| %s |\n", strings.Join(sep, " | "))
+	for _, row := range rows {
+		cells := make([]string, len(headers))
+		for i := range cells {
+			if i < len(row) {
+				cells[i] = escape(row[i])
+			}
+		}
+		fmt.Fprintf(os.Stdout, "| %s |\n", strings.Join(cells, " | "))
+	}
+}
+
 // Render outputs data using the appropriate format based on flags and TTY detection.
 // This is the primary output function commands should use.
 func Render(headers []string, rows [][]string, jsonData any) {
@@ -210,6 +392,10 @@ func Render(headers []string, rows [][]string, jsonData any) {
 		TSV(headers, rows)
 	case "json":
 		JSON(jsonData)
+	case "yaml", "yml":
+		YAML(jsonData)
+	case "md", "markdown":
+		Markdown(headers, rows)
 	default:
 		if ForceJSON || !isTerminal() {
 			JSON(jsonData)
