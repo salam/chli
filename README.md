@@ -46,6 +46,7 @@ make all
 | `chli shab` | [shab.ch](https://www.shab.ch) | REST | Official Gazette publications |
 | `chli opendata` | [opendata.swiss](https://opendata.swiss) | CKAN | Public datasets and organizations |
 | `chli entscheid` | [entscheidsuche.ch](https://entscheidsuche.ch) | Elasticsearch | Court decisions across all 26 cantons |
+| `chli swissreg` | [swissreg.ch](https://www.swissreg.ch) | REST (public search backend) | Trademarks, patents, designs, and their publications |
 
 ## Quick Start
 
@@ -115,15 +116,51 @@ chli entscheid courts
 ### Official Gazette (SHAB)
 
 ```bash
-# Search publications
+# Search publications (table includes a clickable shab.ch link per row)
 chli shab search "Konkurs"
 
 # Filter by rubric
 chli shab search "AG" --rubric HR,KK
 
+# Full publication detail — company, seat, address, auditor, changes
+chli shab publication HR02-1006615899
+
+# Field-level diff between prior and new state (HR mutations)
+chli shab publication HR02-1006615899 --diff
+
+# Timeline of prior FOSC entries for the same legal entity
+chli shab history HR02-1006615899
+chli shab history HR02-1006615899 --depth 5
+
 # List available rubric codes
 chli shab rubrics
 ```
+
+### Swiss IP Register (Swissreg)
+
+```bash
+# Trademarks, patents, and designs — no authentication required.
+chli swissreg trademark '"Ovomaltine"'       # quote for exact phrase
+chli swissreg trademark Nestle --status aktiv --class 30 --max 50
+chli swissreg trademark Nestle --filed-after 2024-01-01 --office DE
+chli swissreg patent Widerstand
+chli swissreg design Stuhl
+chli swissreg patent-pub "Ottavio Sala"
+
+# Download a trademark image (looks up the hash automatically).
+chli swissreg image 570105 --out ovo.png
+chli swissreg image 570105 --url          # just print the image URL
+
+# Fetch a single record by internal URN id (discoverable in search results).
+chli swissreg detail chmarke 1206422825
+```
+
+Filters: `--status aktiv|geloescht`, `--class 30` (comma-separated for
+multiple), `--filed-after YYYY-MM-DD`, `--filed-before YYYY-MM-DD`,
+`--office CH|DE|AT|...`.
+
+Pagination beyond `--max 64` is not supported: the backend uses an opaque
+Transit+JSON cursor that chli does not decode. Refine the query instead.
 
 ### Open Data
 

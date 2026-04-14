@@ -4,12 +4,17 @@
 
 ### Added
 
+- `chli shab history <number>` — Walks the `lastFosc` back-pointer chain for a Handelsregister publication, printing the timeline of prior FOSC entries for the same legal entity (oldest → newest, with the current entry marked). Each row is a clickable shab.ch link in interactive terminals. `--depth N` caps the number of back-hops; default unlimited.
+- `chli shab publication --diff` — Field-level before/after comparison between `commonsActual` and `commonsNew` (name, UID, seat, legal form, address, purpose, auditor). Shows only the fields that changed.
 - `chli parl department [--historic]` — List federal departments (EDA, EDI, EJPD, VBS, EFD, WBF, UVEK, BK, …). Falls back to the legacy `ws-old.parlament.ch` endpoint because the current OData service at `ws.parlament.ch` does not expose departments. `--historic` includes end-dated records with `From`/`To` dates.
 - `chli parl events [--sessions] [--category <c>] [--limit N] [--all]` — Upcoming parliamentary events from the parlament.ch agenda (sessions, press conferences, ceremonies). Uses the site's anonymous SharePoint Search endpoint, giving structured data (start/end, localized title, category, location) further out than the OData Session entity publishes. Respects `--lang de|fr|it|en` for localized titles and categories.
 - `chli parl` (root) — When invoked without a subcommand, prints the current session (or the most recent past + next upcoming session) before the help text. Falls back to the agenda search for the next session when OData hasn't registered it yet.
 
 ### Changed
 
+- `chli shab search` — Table now includes a `URL` column rendered as an OSC-8 terminal hyperlink when interactive, plain URL when piped.
+- `chli shab publication` — Interactive detail for HR publications now extracts structured fields from the XML (company name + UID, seat + legal form, address, auditor, change labels) before the publication text, and prints the canonical shab.ch URL in the header. Previous releases only surfaced the plain text body.
+- `api/shab_types.go` — Replaced the spurious `shabContent` wrapper with a direct mapping of `<content>` (which fixes HR publications that previously parsed to empty content) and added types for `commonsNew` / `commonsActual` / `lastFosc` / `transaction.changements`. `registrationOffice` is now a struct instead of a whitespace-blob string.
 - `chli parl session` — List now includes future sessions announced on the parlament.ch agenda but not yet registered in OData (merged on top, deduped by start date), and adds `Name` (human-readable session name, e.g. "Frühjahrssession 2026") and `Status` (past/current/upcoming) columns. Agenda header and summary table also surface `SessionName`.
 - `api/parl_types.go`: `ParlSession` gained `SessionName`, `SessionNumber`, and `TypeName` fields — previously the `Title` column was shown but `SessionName` (the actual human-readable title) was not fetched.
 - `api/client.go`: `do()` no longer unconditionally overwrites a pre-set `User-Agent`. Callers that need a non-Chrome UA (e.g. the Akamai-fronted `ws-old.parlament.ch`) can now set one via `DoGetWithHeaders`.
