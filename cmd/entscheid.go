@@ -59,7 +59,7 @@ var entscheidSearchCmd = &cobra.Command{
 			return nil
 		}
 
-		headers := []string{"Date", "Canton", "Title", "Reference"}
+		headers := []string{"ID", "Date", "Canton", "Title", "Reference"}
 		rows := make([][]string, 0, len(result.Hits.Hits))
 		for _, hit := range result.Hits.Hits {
 			d := hit.Source
@@ -69,6 +69,7 @@ var entscheidSearchCmd = &cobra.Command{
 				ref = output.Truncate(strings.Join(d.Reference, "; "), 40)
 			}
 			rows = append(rows, []string{
+				hit.ID,
 				d.Date,
 				d.Canton,
 				title,

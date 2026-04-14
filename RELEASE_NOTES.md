@@ -12,6 +12,7 @@
 
 ### Changed
 
+- `chli entscheid search` — Table now includes an `ID` column so results can be passed directly to `entscheid get`/`download` without re-querying the JSON.
 - `chli shab search` — Table now includes a `URL` column rendered as an OSC-8 terminal hyperlink when interactive, plain URL when piped.
 - `chli shab publication` — Interactive detail for HR publications now extracts structured fields from the XML (company name + UID, seat + legal form, address, auditor, change labels) before the publication text, and prints the canonical shab.ch URL in the header. Previous releases only surfaced the plain text body.
 - `api/shab_types.go` — Replaced the spurious `shabContent` wrapper with a direct mapping of `<content>` (which fixes HR publications that previously parsed to empty content) and added types for `commonsNew` / `commonsActual` / `lastFosc` / `transaction.changements`. `registrationOffice` is now a struct instead of a whitespace-blob string.

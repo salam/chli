@@ -109,6 +109,9 @@ chli entscheid search "Mietrecht"
 # Filter by court and date range
 chli entscheid search "Haftung" --court BGer --from 2024-01-01 --to 2024-12-31
 
+# Results include an ID column — pass it straight to get/download
+chli entscheid get CH_BGer_001_4A-123-2024_2024-06-15
+
 # List available courts
 chli entscheid courts
 ```
