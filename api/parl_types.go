@@ -128,15 +128,19 @@ type ParlSession struct {
 
 // ParlCommittee represents a parliamentary committee.
 type ParlCommittee struct {
-	ID              int     `json:"ID"`
-	Language        string  `json:"Language"`
-	CommitteeNumber *int    `json:"CommitteeNumber"`
-	Abbreviation    *string `json:"Abbreviation"`
-	Name            *string `json:"Name"`
-	Council         *int    `json:"Council"`
-	CouncilName     *string `json:"CouncilName"`
-	TypeCode        *int    `json:"TypeCode"`
-	Modified        string  `json:"Modified"`
+	ID                        int     `json:"ID"`
+	Language                  string  `json:"Language"`
+	CommitteeNumber           *int    `json:"CommitteeNumber"`
+	Abbreviation1             *string `json:"Abbreviation1"`
+	Abbreviation2             *string `json:"Abbreviation2"`
+	CommitteeName             *string `json:"CommitteeName"`
+	Council                   *int    `json:"Council"`
+	CouncilName               *string `json:"CouncilName"`
+	CouncilAbbreviation       *string `json:"CouncilAbbreviation"`
+	CommitteeType             *int    `json:"CommitteeType"`
+	CommitteeTypeName         *string `json:"CommitteeTypeName"`
+	CommitteeTypeAbbreviation *string `json:"CommitteeTypeAbbreviation"`
+	Modified                  string  `json:"Modified"`
 }
 
 // ParlParty represents a political party.

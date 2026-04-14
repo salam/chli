@@ -1745,7 +1745,7 @@ var parlCommitteeCmd = &cobra.Command{
 
 		q := api.NewODataQuery("Committee").
 			Top(50).
-			OrderBy("Name")
+			OrderBy("CommitteeName")
 
 		var committees []api.ParlCommittee
 		if err := client.ParlQueryInto(q, &committees); err != nil {
@@ -1759,8 +1759,8 @@ var parlCommitteeCmd = &cobra.Command{
 			for i, c := range committees {
 				rows[i] = []string{
 					fmt.Sprintf("%d", c.ID),
-					api.Str(c.Abbreviation),
-					output.Truncate(api.Str(c.Name), 60),
+					api.Str(c.Abbreviation1),
+					output.Truncate(api.Str(c.CommitteeName), 60),
 					api.Str(c.CouncilName),
 				}
 			}
