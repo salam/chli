@@ -1,6 +1,6 @@
 # chli
 
-A unified command-line interface for Swiss federal open data. Access parliament records, federal law, court decisions, the official gazette, and public datasets — all from a single binary.
+A unified command-line interface for Swiss federal open data. Access parliament records, federal law, court decisions, the official gazette, public datasets, the IP register, the commercial register, federal linked-data, and the geoportal — all from a single binary.
 
 ```
 chli parl person --name "Sommaruga"
@@ -8,11 +8,14 @@ chli fedlex sr 101
 chli entscheid search "Mietrecht"
 chli shab search "Konkurs" --rubric KK
 chli opendata search "Verkehr"
+chli swissreg trademark '"Ovomaltine"'
+chli zefix search "Migros" --canton ZH
+chli geo search "Bundesplatz 3, Bern"
 ```
 
 ## Why chli?
 
-Switzerland publishes a wealth of government data through various APIs — OData, SPARQL, Elasticsearch, CKAN, and REST. Each has its own query language, pagination, and authentication quirks. **chli** wraps all five into a consistent CLI with caching, multilingual support, and smart output formatting.
+Switzerland publishes a wealth of government data through various APIs — OData, SPARQL, Elasticsearch, CKAN, and REST. Each has its own query language, pagination, and authentication quirks. **chli** wraps them all into a consistent CLI with caching, multilingual support, and smart output formatting.
 
 ## Install
 
@@ -288,6 +291,10 @@ chli caches API responses to reduce latency and load on public APIs. Cache files
 | SHAB | 1 hour | Daily publications |
 | opendata.swiss | 24 hours | Metadata changes slowly |
 | Court Decisions | 24 hours | Decisions published periodically |
+| Swissreg | 24 hours | IP register updates slowly |
+| Zefix / UID | 24 hours | Commercial register updates slowly |
+| LINDAS | 24 hours | Aggregated linked-data graphs |
+| Geoportal | 7 days | Layer metadata and place lookups are stable |
 
 Use `--no-cache` to bypass or `--refresh` to force a fresh fetch.
 
