@@ -33,29 +33,35 @@ release and weekly.
 
 ## Architecture
 
-New files and their responsibilities:
+chli uses a flat `api/*.go` layout (one file per data source plus a matching
+`_types.go`) and a single external dependency (Cobra). This feature follows
+that pattern — no subpackages, no YAML library.
 
-```
+New files:
+
+```text
 cmd/
-  plate.go               Cobra root for `chli plate` + `lookup` behaviour.
-  plate_verify.go        `chli plate verify [--all|--canton XX]`, used by CI.
-  vehicles.go            Cobra root + `stock`, `registrations` subcommands.
+  plate.go                Cobra root for `chli plate` + `lookup` behaviour.
+  plate_verify.go         `chli plate verify [--all|--canton XX]`, used by CI.
+  vehicles.go             Cobra root + `stock`, `registrations` subcommands.
 
 api/
-  plate/
-    plate.go             Plate parsing, canton detection, dispatch.
-    cantons.yaml         go:embed'd — 26 canton entries.
-    cantons.go           YAML loader, types, invariant checks.
-    verify.go            HTTP endpoint verifier (observational only).
-  vehicles/
-    client.go            Thin wrapper on api/opendata CKAN client.
-    sources.go           Pinned BFS MOFIS resource IDs as constants.
-    stock.go             Fetch + filter vehicle-stock CSV.
-    registrations.go     Fetch + filter new-registrations CSV.
+  plate.go                Plate parsing, canton detection, dispatcher.
+  plate_types.go          CantonEntry, HalterauskunftEntry, enums.
+  plate_cantons.go        JSON loader + go:embed + invariant checks.
+  plate_cantons.json      go:embed'd — 26 canton entries.
+  plate_verify.go         HTTP endpoint verifier (observational only).
+  plate_test.go           Parser and loader tests.
+  vehicles.go             Vehicles client (wraps existing opendata CKAN).
+  vehicles_types.go       Row types, filter/group structs.
+  vehicles_test.go        CSV filter / group tests against fixtures.
 
 .github/workflows/
-  plate-verify.yml       release:published + weekly cron + workflow_dispatch.
+  plate-verify.yml        release:published + weekly cron + workflow_dispatch.
 ```
+
+Cache TTL constants (`plateCacheTTL`, `vehiclesCacheTTL`) are added to
+`api/cache.go`.
 
 ### Design choices
 
@@ -66,9 +72,10 @@ api/
 - **`vehicles` reuses `api/opendata`.** CKAN client, cache, formatting are
   already in place. MOFIS datasets are published there as CSV. Fewer moving
   parts than bringing LINDAS in on day one.
-- **Canton data is YAML + go:embed.** Reviewable diffs, no runtime file-finding,
-  easy for the verifier to parse. YAML allows inline comments for research notes
-  ("form URL moved 2026-02") which JSON doesn't.
+- **Canton data is JSON + go:embed.** chli's dependency policy is Cobra-only,
+  so YAML is off the table. JSON is stdlib (`encoding/json` +
+  `DisallowUnknownFields`) and diffs cleanly. Research notes live in a
+  dedicated `notes` field per canton rather than file comments.
 - **`chli plate verify` is a subcommand, not a second binary.** Same loader,
   same types, one implementation. CI calls it with `-o json`.
 
@@ -96,7 +103,7 @@ is a pure string operation — no API call.
 
 Per `(plate, canton)` combination, print a record like:
 
-```
+```text
 Plate:         ZH 123 456
 Canton:        Zürich (ZH) — Strassenverkehrsamt Zürich
 Service:       Halterauskunft online
@@ -117,12 +124,12 @@ Postal-only cantons keep the same shape with `URL` pointing at the form PDF,
 `Payment` showing `invoice / prepaid`, `Processing` showing `5–10 business
 days`, and an additional `Postal:` block with the street address.
 
-### Flags
+### Plate flags
 
 - `--open` — open the URL in the default browser (`open` / `xdg-open` / `start`).
 - `-o json|yaml|md|csv` — machine-readable; same per-canton record shape.
-- `--lang de|fr|it|en|rm` — selects language-tagged string fields from YAML;
-  falls back to `de` when a language variant is missing.
+- `--lang de|fr|it|en|rm` — selects language-tagged string fields from the
+  canton data file; falls back to `de` when a language variant is missing.
 - `--no-privacy-notice` — suppress the trailing reminder (JSON never prints it
   anyway).
 
@@ -142,8 +149,8 @@ The BFS MOFIS dataset on opendata.swiss, accessed via the existing
 - Vehicle stock — quarterly snapshot by canton × vehicle-type × fuel × make.
 - New registrations — monthly new entries, same dimensions.
 
-Resource IDs are pinned as `const` in `api/vehicles/sources.go` so a BFS URL
-change is a one-line edit.
+Resource IDs are pinned as `const` at the top of `api/vehicles.go` so a BFS
+URL change is a one-line edit.
 
 ### Subcommands
 
@@ -157,7 +164,7 @@ chli vehicles registrations --fuel electric --from 2025-01
 chli vehicles registrations --make Renault --model Zoe
 ```
 
-### Flags
+### Vehicles flags
 
 - `--canton XX[,YY,...]` — multi-canton filter; omit for national total.
 - `--fuel petrol|diesel|electric|hybrid|gas|hydrogen|other` — mapped to BFS
@@ -180,51 +187,74 @@ quarterly.
 
 ## Canton Data Schema
 
-`api/plate/cantons.yaml`:
+`api/plate_cantons.json` (go:embed'd; one top-level object keyed by canton
+code):
 
-```yaml
-# schema_version: 1
-
-cantons:
-  ZH:
-    name_de: "Zürich"
-    name_fr: "Zurich"
-    name_it: "Zurigo"
-    name_en: "Zurich"
-    authority:
-      name: "Strassenverkehrsamt des Kantons Zürich"
-      url: "https://www.zh.ch/de/sicherheit-justiz/strassenverkehrsamt.html"
-      email: "info@stva.zh.ch"
-      phone: "+41 58 811 30 00"
-      postal:
-        street: "Uetlibergstrasse 301"
-        zip: "8036"
-        city: "Zürich"
-    halterauskunft:
-      mode: "online"              # online | postal | mixed | unavailable
-      url: "https://halterauskunft.zh.ch"
-      deeplink_template: "https://halterauskunft.zh.ch/?plate={{.PlateNormalized}}"
-      form_pdf: null
-      cost_chf: 13
-      payment_methods: ["twint", "mastercard", "visa", "postfinance_card"]
-      auth:
-        captcha: "hcaptcha"       # hcaptcha | recaptcha | none
-        sms: false
-        email_confirmation: true
-        requires_stated_reason: true
-        requires_identification: false
-      processing:
-        typical: "instant"         # instant | hours | 1-3_days | 5-10_days
-        delivery: "pdf_email"      # pdf_email | postal | online_portal
-      legal_basis: "SVG Art. 104 / VZV Art. 126"
-      notes_de: "Begründung erforderlich."
-      notes_en: "Reason required."
-    verification:
-      last_verified: "2026-04-20"
-      verified_by: "manual"        # manual | ci
-      source_urls:
-        - "https://halterauskunft.zh.ch"
+```json
+{
+  "schema_version": 1,
+  "cantons": {
+    "ZH": {
+      "names": {
+        "de": "Zürich",
+        "fr": "Zurich",
+        "it": "Zurigo",
+        "en": "Zurich"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Zürich",
+        "url": "https://www.zh.ch/de/sicherheit-justiz/strassenverkehrsamt.html",
+        "email": "info@stva.zh.ch",
+        "phone": "+41 58 811 30 00",
+        "postal": {
+          "street": "Uetlibergstrasse 301",
+          "zip": "8036",
+          "city": "Zürich"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://halterauskunft.zh.ch",
+        "deeplink_template": "https://halterauskunft.zh.ch/?plate={{.PlateNormalized}}",
+        "form_pdf": null,
+        "cost_chf": 13,
+        "payment_methods": ["twint", "mastercard", "visa", "postfinance_card"],
+        "auth": {
+          "captcha": "hcaptcha",
+          "sms": false,
+          "email_confirmation": true,
+          "requires_stated_reason": true,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "pdf_email"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Begründung erforderlich.",
+          "en": "Reason required."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://halterauskunft.zh.ch"
+        ]
+      }
+    }
+  }
+}
 ```
+
+Enum fields:
+
+- `halterauskunft.mode`: `online | postal | mixed | unavailable`
+- `halterauskunft.auth.captcha`: `hcaptcha | recaptcha | none`
+- `halterauskunft.processing.typical`: `instant | hours | 1-3_days | 5-10_days`
+- `halterauskunft.processing.delivery`: `pdf_email | postal | online_portal`
+- `verification.verified_by`: `manual | ci`
 
 ### Go types (sketch)
 
@@ -259,10 +289,10 @@ Enforced in a `sync.Once`-guarded loader:
 - `mode in {postal, mixed}` → `authority.postal` is populated.
 - `cost_chf >= 0`.
 - `verification.last_verified` parses as RFC 3339 date.
-- Unknown YAML keys rejected (`yaml.KnownFields(true)`).
+- Unknown JSON keys rejected (`json.Decoder.DisallowUnknownFields`).
 
-Malformed YAML aborts the process with a clear error. This is embedded data, so
-a malformed file is a build-time bug.
+Malformed JSON aborts the process with a clear error. This is embedded data,
+so a malformed file is a build-time bug.
 
 ## GitHub Action: Cantonal Endpoint Verification
 
@@ -335,24 +365,25 @@ between releases. `workflow_dispatch` allows ad-hoc runs.
 
 ## Testing
 
-- `api/plate`:
+- `api/plate_test.go`:
   - Plate parsing: table test covering every accepted and rejected form.
   - Canton loader: embed-driven test asserts all 26 entries, invariant checks.
   - Deeplink template rendering for each canton with `deeplink_template` set.
-  - Language fallback: requested `fr` falls back to `de` when `notes_fr` absent.
+  - Language fallback: requested `fr` falls back to `de` when `notes.fr`
+    absent.
   - Verifier: unit test with `httptest.Server` covering ok / redirect /
     keyword-miss / timeout / 500.
-- `api/vehicles`:
-  - CSV parsing with golden fixtures (subset of real BFS CSV).
+- `api/vehicles_test.go`:
+  - CSV parsing with golden fixtures in `api/testdata/vehicles-*.csv`.
   - Filter + group logic on synthetic rows.
   - Integration-style test gated by env var, hits opendata.swiss.
-- `cmd/`:
+- `cmd/` smoke tests:
   - Cobra command wiring: flag parsing, error paths, output format selection.
 
 ## Build & CI
 
-- `make build` compiles normally; `go:embed` pulls cantons.yaml into the
-  binary.
+- `make build` compiles normally; `go:embed` pulls `plate_cantons.json` into
+  the binary.
 - `make test` covers the above.
 - New workflow `plate-verify.yml`. Existing CI is unchanged.
 
