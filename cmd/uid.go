@@ -18,9 +18,11 @@ var uidCmd = &cobra.Command{
 	Short: "UID (Unternehmens-Identifikationsnummer) lookup",
 	Long: `Look up and format Swiss business identifier numbers (UID).
 
-Data source: Zefix public REST API (the openly queryable surface for UID-holders
-that are in the commercial register). The BFS UID register SOAP service
-(uid.admin.ch) is authenticated and not wrapped here.`,
+Data source: Zefix REST API. Uses the authenticated official endpoint when
+credentials are configured (see ` + "`chli uid login`" + `) and falls back to the
+unauthenticated zefix.ch endpoints otherwise — so a fresh install can look up
+UIDs with no registration. The BFS UID register SOAP service (uid.admin.ch) is
+authenticated and not wrapped here.`,
 }
 
 var uidLookupCmd = &cobra.Command{

@@ -17,13 +17,16 @@ var zefixAuthBinding = authBinding{
 	EnvPass: "ZEFIX_PASS",
 	HelpLong: `Store credentials for the Zefix public REST API.
 
-Zefix requires registration for API access — see https://www.zefix.admin.ch/
-(API section) to obtain a username and password. Credentials are written to
+Credentials are optional: without them, zefix/uid commands fall back to the
+unauthenticated endpoints used by the zefix.ch website. Register at
+https://www.zefix.admin.ch/ (API section) for the official API if you want a
+versioned, documented contract. Stored credentials are written to
 ~/.config/chli/credentials.json with 0600 permissions.
 
 Precedence when a command needs credentials:
   1. Environment variables (ZEFIX_USER / ZEFIX_PASS)
   2. Stored credentials (this command)
+  3. Public fallback (no credentials required)
 
 Note: ` + "`chli uid login`" + ` and ` + "`chli zefix login`" + ` share the same entry,
 since UID lookup goes through the Zefix REST API.`,
@@ -32,7 +35,13 @@ since UID lookup goes through the Zefix REST API.`,
 var zefixCmd = &cobra.Command{
 	Use:   "zefix",
 	Short: "Swiss commercial register (Zefix)",
-	Long:  "Search and look up Swiss companies via the Zefix public REST API.",
+	Long: `Search and look up Swiss companies via the Zefix REST API.
+
+Uses the authenticated official endpoint (www.zefix.admin.ch) when credentials
+are configured, and falls back to the unauthenticated zefix.ch endpoints
+otherwise. On the fallback path the canton filter is applied client-side and
+is a best-effort match (a few cantons that don't publish via chregister.ch
+register offices cannot be filtered this way).`,
 }
 
 var zefixSearchCmd = &cobra.Command{
