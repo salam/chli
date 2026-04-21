@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "cantons": {
+    "ZH": {"names":{"de":"Zürich"},"authority":{"name":"X"},"halterauskunft":{"mode":"unavailable","cost_chf":0,"payment_methods":[],"auth":{"captcha":"none","sms":false,"email_confirmation":false,"requires_stated_reason":false,"requires_identification":false},"processing":{"typical":"","delivery":""}},"verification":{"last_verified":"2026-04-20","verified_by":"manual"}}
+  }
+}
