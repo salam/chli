@@ -1,0 +1,1341 @@
+{
+  "schema_version": 1,
+  "cantons": {
+    "AG": {
+      "names": {
+        "de": "Aargau",
+        "fr": "Argovie",
+        "it": "Argovia",
+        "en": "Aargau"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Aargau",
+        "url": "https://www.ag.ch/de/themen/mobilitaet-verkehr/strassenverkehr",
+        "email": null,
+        "phone": "+41 62 886 22 00",
+        "postal": {
+          "street": "Hintere Bahnhofstrasse 82",
+          "zip": "5001",
+          "city": "Aarau"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://ag-autoindex.viacar-system.ch/home",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Kostenlose Abfrage über viacar, max. 5 Abfragen pro 24 Stunden.",
+          "en": "Free viacar lookup, limited to 5 queries per 24 hours."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.ag.ch/de/smartserviceportal/dienstleistungen?dl=abfrage-sperrung-halterdaten-fahrzeugregister-(autoindex)-f957d91d-a7b9-4330-a5d4-5b9d4b29c673_de",
+          "https://ag-autoindex.viacar-system.ch/home"
+        ]
+      }
+    },
+    "AI": {
+      "names": {
+        "de": "Appenzell Innerrhoden",
+        "fr": "Appenzell Rhodes-Intérieures",
+        "it": "Appenzello Interno",
+        "en": "Appenzell Innerrhoden"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt Appenzell Innerrhoden",
+        "url": "https://www.ai.ch/verwaltung/justiz-polizei-und-militaerdepartement/strassenverkehrsamt",
+        "email": "info@stva.ai.ch",
+        "phone": "+41 71 788 95 34",
+        "postal": {
+          "street": "Brüggliweg 15",
+          "zip": "9050",
+          "city": "Appenzell"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://eautoindex.ch/",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 1,
+        "payment_methods": ["prepaid"],
+        "auth": {
+          "captcha": "none",
+          "sms": true,
+          "email_confirmation": true,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Registrierung auf eAutoindex.ch erforderlich; Abfrage auch per SMS an 939 (AI xxxxx).",
+          "en": "Registration on eAutoindex.ch required; SMS query to 939 (AI xxxxx) also available."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.ai.ch/verwaltung/justiz-polizei-und-militaerdepartement/strassenverkehrsamt",
+          "https://eautoindex.ch/",
+          "https://asa.ch/strassenverkehrsaemter/halterabfragen/"
+        ]
+      }
+    },
+    "AR": {
+      "names": {
+        "de": "Appenzell Ausserrhoden",
+        "fr": "Appenzell Rhodes-Extérieures",
+        "it": "Appenzello Esterno",
+        "en": "Appenzell Ausserrhoden"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt Appenzell Ausserrhoden",
+        "url": "https://ar.ch/verwaltung/departement-inneres-und-sicherheit/strassenverkehrsamt/",
+        "email": "strassenverkehrsamt@ar.ch",
+        "phone": "+41 71 343 63 11",
+        "postal": {
+          "street": "Landsgemeindeplatz 5",
+          "zip": "9043",
+          "city": "Trogen"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://eautoindex.ch/",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 1,
+        "payment_methods": ["prepaid"],
+        "auth": {
+          "captcha": "none",
+          "sms": true,
+          "email_confirmation": true,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Registrierung auf eAutoindex.ch erforderlich; Abfrage auch per SMS an 939 (AR xxxx).",
+          "en": "Registration on eAutoindex.ch required; SMS query to 939 (AR xxxx) also available."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://ar.ch/verwaltung/departement-inneres-und-sicherheit/strassenverkehrsamt/",
+          "https://eautoindex.ch/",
+          "https://asa.ch/strassenverkehrsaemter/halterabfragen/"
+        ]
+      }
+    },
+    "BE": {
+      "names": {
+        "de": "Bern",
+        "fr": "Berne",
+        "it": "Berna",
+        "en": "Bern"
+      },
+      "authority": {
+        "name": "Strassenverkehrs- und Schifffahrtsamt des Kantons Bern (SVSA)",
+        "url": "https://www.svsa.sid.be.ch/",
+        "email": "info.svsa@be.ch",
+        "phone": "+41 31 634 22 11",
+        "postal": {
+          "street": "Schermenweg 5",
+          "zip": "3000",
+          "city": "Bern 22"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://www.svsa.sid.be.ch/de/start/fahrzeuge/nummernschilder/fahrzeughalterauskunft.html",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 1,
+        "payment_methods": ["prepaid"],
+        "auth": {
+          "captcha": "none",
+          "sms": true,
+          "email_confirmation": true,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Online-Abfrage ausschliesslich über eAutoindex.ch, CHF 1.– pro Kennzeichen. SMS an 939 (BE xxxxx) möglich. Weitergehende Auskünfte nur schriftlich mit Begründung.",
+          "en": "Online query via eAutoindex.ch only, CHF 1.– per plate. SMS to 939 (BE xxxxx) available. Further inquiries only in writing with stated reason."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.svsa.sid.be.ch/de/start/fahrzeuge/nummernschilder/fahrzeughalterauskunft.html",
+          "https://eautoindex.ch/"
+        ]
+      }
+    },
+    "BL": {
+      "names": {
+        "de": "Basel-Landschaft",
+        "fr": "Bâle-Campagne",
+        "it": "Basilea Campagna",
+        "en": "Basel-Landschaft"
+      },
+      "authority": {
+        "name": "Motorfahrzeugkontrolle Basel-Landschaft",
+        "url": "https://www.baselland.ch/politik-und-behorden/direktionen/sicherheitsdirektion/motorfahrzeugkontrolle",
+        "email": "mfk@bl.ch",
+        "phone": "+41 61 552 50 00",
+        "postal": {
+          "street": "Ergolzstrasse 1",
+          "zip": "4414",
+          "city": "Füllinsdorf"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://www.baselland.ch/politik-und-behorden/direktionen/sicherheitsdirektion/motorfahrzeugkontrolle/fahrzeugzulassung/halterauskunft",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 1,
+        "payment_methods": ["prepaid"],
+        "auth": {
+          "captcha": "none",
+          "sms": true,
+          "email_confirmation": true,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Online über eAutoindex.ch oder SMS an 939 (BL xxxxx), CHF 1.– pro Abfrage. Keine Telefonauskünfte.",
+          "en": "Query via eAutoindex.ch or SMS to 939 (BL xxxxx), CHF 1.– per query. No phone inquiries."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.baselland.ch/politik-und-behorden/direktionen/sicherheitsdirektion/motorfahrzeugkontrolle/fahrzeugzulassung/halterauskunft",
+          "https://eautoindex.ch/"
+        ]
+      }
+    },
+    "BS": {
+      "names": {
+        "de": "Basel-Stadt",
+        "fr": "Bâle-Ville",
+        "it": "Basilea Città",
+        "en": "Basel-Stadt"
+      },
+      "authority": {
+        "name": "Motorfahrzeugkontrolle Basel-Stadt",
+        "url": "https://www.bs.ch/themen/mobilitaet/kontrollschilder/halterauskuenfte",
+        "email": "mfk@jsd.bs.ch",
+        "phone": "+41 61 267 82 00",
+        "postal": {
+          "street": "Clarastrasse 38",
+          "zip": "4058",
+          "city": "Basel"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://www.bs.ch/themen/mobilitaet/kontrollschilder/halterauskuenfte",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 1,
+        "payment_methods": ["prepaid"],
+        "auth": {
+          "captcha": "none",
+          "sms": true,
+          "email_confirmation": true,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Abfrage über eAutoindex.ch (CHF 1.–) oder SMS an 939 (BS xxxxx). Gesperrte Halterdaten CHF 20.– mit schriftlicher Begründung.",
+          "en": "Query via eAutoindex.ch (CHF 1.–) or SMS to 939 (BS xxxxx). Blocked holder data CHF 20.– with written reason."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.bs.ch/themen/mobilitaet/kontrollschilder/halterauskuenfte",
+          "https://www.polizei.bs.ch/verkehr/motorfahrzeugkontrolle/fahrzeuge/schilder/halterauskuenfte.html",
+          "https://eautoindex.ch/"
+        ]
+      }
+    },
+    "FR": {
+      "names": {
+        "de": "Freiburg",
+        "fr": "Fribourg",
+        "it": "Friburgo",
+        "en": "Fribourg"
+      },
+      "authority": {
+        "name": "Office de la circulation et de la navigation (OCN)",
+        "url": "https://www.ocn.ch/",
+        "email": "info@ocn.ch",
+        "phone": "+41 26 484 55 55",
+        "postal": {
+          "street": "Route de Tavel 10",
+          "zip": "1700",
+          "city": "Fribourg"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://www.ocn.ch/fr/conduire/plaques-et-carte-grise/auto-index-trouver-un-detenteur-ou-une-detentrice-de-vehicule",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Online-Auto-Index des OCN: Name und Adresse des Halters abrufbar, sofern keine Auskunftssperre besteht.",
+          "en": "OCN online auto-index: holder name and address unless blocked."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.ocn.ch/fr/conduire/plaques-et-carte-grise/auto-index-trouver-un-detenteur-ou-une-detentrice-de-vehicule",
+          "https://www.ocn.ch/fr/fribourg"
+        ]
+      }
+    },
+    "GE": {
+      "names": {
+        "de": "Genf",
+        "fr": "Genève",
+        "it": "Ginevra",
+        "en": "Geneva"
+      },
+      "authority": {
+        "name": "Office cantonal des véhicules (OCV)",
+        "url": "https://www.ge.ch/organisation/office-cantonal-vehicules-ocv",
+        "email": null,
+        "phone": "+41 22 388 30 30",
+        "postal": {
+          "street": "Route de Veyrier 86",
+          "zip": "1227",
+          "city": "Carouge GE"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://www.ge.ch/repertoire-detenteurs-plaques-index-auto",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 10,
+        "payment_methods": ["mastercard", "visa", "bank_transfer"],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": true,
+          "requires_stated_reason": true,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "1-3_days",
+          "delivery": "pdf_email"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Online-Formular, CHF 10.– nicht rückerstattbar; Anfrage muss klar begründet sein.",
+          "en": "Online form, CHF 10.– non-refundable; request must be clearly motivated."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.ge.ch/repertoire-detenteurs-plaques-index-auto",
+          "https://www.ge.ch/document/conditions-generales-vente-demandes-renseignement-detenteur-vehicule"
+        ]
+      }
+    },
+    "GL": {
+      "names": {
+        "de": "Glarus",
+        "fr": "Glaris",
+        "it": "Glarona",
+        "en": "Glarus"
+      },
+      "authority": {
+        "name": "Strassenverkehrs- und Schifffahrtsamt des Kantons Glarus",
+        "url": "https://www.gl.ch/verwaltung/sicherheit-und-justiz/justiz/strassenverkehrsamt.html/466",
+        "email": "stva@gl.ch",
+        "phone": "+41 55 646 54 00",
+        "postal": {
+          "street": "Mühlestrasse 17",
+          "zip": "8762",
+          "city": "Schwanden"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://eautoindex.ch/",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 1,
+        "payment_methods": ["prepaid"],
+        "auth": {
+          "captcha": "none",
+          "sms": true,
+          "email_confirmation": true,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Registrierung auf eAutoindex.ch erforderlich; SMS an 939 (GL xxxx). Max. 3 Abfragen pro 24 Stunden.",
+          "en": "Registration on eAutoindex.ch required; SMS to 939 (GL xxxx). Max 3 queries per 24 hours."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.gl.ch/verwaltung/sicherheit-und-justiz/justiz/strassenverkehrsamt.html/466",
+          "https://eautoindex.ch/"
+        ]
+      }
+    },
+    "GR": {
+      "names": {
+        "de": "Graubünden",
+        "fr": "Grisons",
+        "it": "Grigioni",
+        "en": "Grisons"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Graubünden",
+        "url": "https://www.gr.ch/DE/institutionen/verwaltung/djsg/stva/Seiten/Start.aspx",
+        "email": "info@stva.gr.ch",
+        "phone": "+41 81 257 80 00",
+        "postal": {
+          "street": "Ringstrasse 2",
+          "zip": "7000",
+          "city": "Chur"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://eautoindex.ch/",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 1,
+        "payment_methods": ["mastercard", "visa", "prepaid"],
+        "auth": {
+          "captcha": "none",
+          "sms": true,
+          "email_confirmation": true,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Einmalige Registrierung und Vorauszahlung per Kreditkarte oder Mobile-Billing auf eAutoindex.ch.",
+          "en": "One-time registration and prepayment via credit card or mobile billing on eAutoindex.ch."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.gr.ch/DE/institutionen/verwaltung/djsg/stva/Seiten/Start.aspx",
+          "https://eautoindex.ch/"
+        ]
+      }
+    },
+    "JU": {
+      "names": {
+        "de": "Jura",
+        "fr": "Jura",
+        "it": "Giura",
+        "en": "Jura"
+      },
+      "authority": {
+        "name": "Office des véhicules du canton du Jura (OVJ)",
+        "url": "https://www.jura.ch/ovj",
+        "email": "secr.ovj@jura.ch",
+        "phone": "+41 32 420 71 20",
+        "postal": {
+          "street": "Route de la Communance 45",
+          "zip": "2800",
+          "city": "Delémont"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://www.jura.ch/fr/Autorites/Administration/DEC/OVJ/Recherche-d-un-detenteur-de-plaques/Recherche-d-un-detenteur-de-plaques.html",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Recherche über das kantonale Guichet virtuel (guichet.jura.ch).",
+          "en": "Query via the cantonal Guichet virtuel (guichet.jura.ch)."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.jura.ch/ovj",
+          "https://www.jura.ch/fr/Autorites/Administration/DEC/OVJ/Recherche-d-un-detenteur-de-plaques/Recherche-d-un-detenteur-de-plaques.html"
+        ]
+      }
+    },
+    "LU": {
+      "names": {
+        "de": "Luzern",
+        "fr": "Lucerne",
+        "it": "Lucerna",
+        "en": "Lucerne"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Luzern",
+        "url": "https://strassenverkehrsamt.lu.ch/",
+        "email": "strassenverkehrsamt@lu.ch",
+        "phone": "+41 41 318 11 77",
+        "postal": {
+          "street": "Arsenalstrasse 45",
+          "zip": "6010",
+          "city": "Kriens"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://lu-autoindex.viacar-system.ch/home",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Kostenlose Online-Halterauskunft über viacar; begrenzte Abfragen pro 24 Stunden. Weitergehende Auskünfte schriftlich und begründet.",
+          "en": "Free online holder lookup via viacar; limited queries per 24 hours. Further inquiries require written reason."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://strassenverkehrsamt.lu.ch/strassenverkehr/halterauskunft_sperre",
+          "https://lu-autoindex.viacar-system.ch/home"
+        ]
+      }
+    },
+    "NE": {
+      "names": {
+        "de": "Neuenburg",
+        "fr": "Neuchâtel",
+        "it": "Neuchâtel",
+        "en": "Neuchâtel"
+      },
+      "authority": {
+        "name": "Service cantonal des automobiles et de la navigation (SCAN)",
+        "url": "https://www.scan-ne.ch/",
+        "email": "scan@ne.ch",
+        "phone": "+41 32 889 79 00",
+        "postal": {
+          "street": "Rue des Draizes 5",
+          "zip": "2006",
+          "city": "Neuchâtel"
+        }
+      },
+      "halterauskunft": {
+        "mode": "mixed",
+        "url": "https://www.scan-ne.ch/vehicule/voitures-motos-scooters-quads/plaques/connaitre-lidentite-du-detenteur-dune-plaque/",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 1,
+        "payment_methods": ["prepaid", "bank_transfer"],
+        "auth": {
+          "captcha": "none",
+          "sms": true,
+          "email_confirmation": true,
+          "requires_stated_reason": true,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Drei Wege: gratis über Guichet unique, CHF 1.– per SMS via eAutoindex an 939, CHF 10.– schriftlich. Angabe eines strassenverkehrsbezogenen Grunds erforderlich.",
+          "en": "Three channels: free via Guichet unique, CHF 1.– by SMS to 939 (eAutoindex), CHF 10.– written. Road-traffic-related reason required."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.scan-ne.ch/vehicule/voitures-motos-scooters-quads/plaques/connaitre-lidentite-du-detenteur-dune-plaque/",
+          "https://support.scan-ne.ch/support/solutions/articles/75000020986-conna%C3%AEtre-le-nom-du-d%C3%A9tenteur-d-un-num%C3%A9ro-de-plaques",
+          "https://www.guichetunique.ch/public/Services/Private/Mobility.aspx"
+        ]
+      }
+    },
+    "NW": {
+      "names": {
+        "de": "Nidwalden",
+        "fr": "Nidwald",
+        "it": "Nidvaldo",
+        "en": "Nidwalden"
+      },
+      "authority": {
+        "name": "Verkehrssicherheitszentrum Obwalden/Nidwalden (VSZ OW/NW)",
+        "url": "https://www.vsz.ch/",
+        "email": "info@vsz.ch",
+        "phone": "+41 41 618 41 41",
+        "postal": {
+          "street": "Kreuzstrasse 2",
+          "zip": "6371",
+          "city": "Stans"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://www.vsz.ch/",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 1,
+        "payment_methods": ["prepaid"],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": true,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Kontoeröffnung beim VSZ OW/NW erforderlich, CHF 1.– pro Abfrage.",
+          "en": "Account at VSZ OW/NW required, CHF 1.– per query."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.vsz.ch/",
+          "https://www.nw.ch/oeffentlicherechtlanst/433",
+          "https://www.vsz.ch/strassenverkehr/fahrzeug/kontrollschild/halterauskunftsperre"
+        ]
+      }
+    },
+    "OW": {
+      "names": {
+        "de": "Obwalden",
+        "fr": "Obwald",
+        "it": "Obvaldo",
+        "en": "Obwalden"
+      },
+      "authority": {
+        "name": "Verkehrssicherheitszentrum Obwalden/Nidwalden (VSZ OW/NW)",
+        "url": "https://www.vsz.ch/",
+        "email": "info@vsz.ch",
+        "phone": "+41 41 666 66 00",
+        "postal": {
+          "street": "Enetriederstrasse 1",
+          "zip": "6060",
+          "city": "Sarnen"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://www.vsz.ch/",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 1,
+        "payment_methods": ["prepaid"],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": true,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Kontoeröffnung beim VSZ OW/NW erforderlich, CHF 1.– pro Abfrage.",
+          "en": "Account at VSZ OW/NW required, CHF 1.– per query."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.vsz.ch/",
+          "https://www.ow.ch/aemter/249"
+        ]
+      }
+    },
+    "SG": {
+      "names": {
+        "de": "St. Gallen",
+        "fr": "Saint-Gall",
+        "it": "San Gallo",
+        "en": "St. Gallen"
+      },
+      "authority": {
+        "name": "Strassenverkehrs- und Schifffahrtsamt des Kantons St. Gallen",
+        "url": "https://www.sg.ch/politik-verwaltung/departemente-und-staatskanzlei/sicherheits--und-justizdepartement/strassenverkehrs--und-schifffahrtsamt.html",
+        "email": "info.stva@sg.ch",
+        "phone": "+41 58 229 22 22",
+        "postal": {
+          "street": "Frongartenstrasse 5",
+          "zip": "9001",
+          "city": "St. Gallen"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://eautoindex.ch/",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 1,
+        "payment_methods": ["prepaid"],
+        "auth": {
+          "captcha": "none",
+          "sms": true,
+          "email_confirmation": true,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Abfrage über eAutoindex.ch; Registrierung erforderlich.",
+          "en": "Query via eAutoindex.ch; registration required."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.sg.ch/politik-verwaltung/departemente-und-staatskanzlei/sicherheits--und-justizdepartement/strassenverkehrs--und-schifffahrtsamt.html",
+          "https://eautoindex.ch/"
+        ]
+      }
+    },
+    "SH": {
+      "names": {
+        "de": "Schaffhausen",
+        "fr": "Schaffhouse",
+        "it": "Sciaffusa",
+        "en": "Schaffhausen"
+      },
+      "authority": {
+        "name": "Strassenverkehrs- und Schifffahrtsamt des Kantons Schaffhausen",
+        "url": "https://sh.ch/CMS/Webseite/Kanton-Schaffhausen/Beh-rde/Verwaltung/Baudepartement/Strassenverkehrs--und-Schifffahrtsamt-3612-DE.html",
+        "email": "strassenverkehrsamt@ktsh.ch",
+        "phone": "+41 52 632 72 80",
+        "postal": {
+          "street": "Rosengasse 8",
+          "zip": "8200",
+          "city": "Schaffhausen"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://sh.ch/CMS/Webseite/Kanton-Schaffhausen/Beh-rde/Verwaltung/Baudepartement/Strassenverkehrs--und-Schifffahrtsamt-2130645-DE.html",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Online-Abfrage über viacar-System, kostenlos mit Tageslimit.",
+          "en": "Free online query via the viacar system, daily limit applies."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://sh.ch/CMS/Webseite/Kanton-Schaffhausen/Beh-rde/Verwaltung/Baudepartement/Strassenverkehrs--und-Schifffahrtsamt-2130645-DE.html",
+          "https://asa.ch/strassenverkehrsaemter/halterabfragen/"
+        ]
+      }
+    },
+    "SO": {
+      "names": {
+        "de": "Solothurn",
+        "fr": "Soleure",
+        "it": "Soletta",
+        "en": "Solothurn"
+      },
+      "authority": {
+        "name": "Motorfahrzeugkontrolle des Kantons Solothurn",
+        "url": "https://so.ch/verwaltung/bau-und-justizdepartement/motorfahrzeugkontrolle/",
+        "email": "mfk@vd.so.ch",
+        "phone": "+41 32 627 66 66",
+        "postal": {
+          "street": "Gurzelenstrasse 3",
+          "zip": "4512",
+          "city": "Bellach"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://so.ch/verwaltung/bau-und-justizdepartement/motorfahrzeugkontrolle/fahrzeuge/kontrollschilder/halterabfrage-online/",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 1,
+        "payment_methods": ["prepaid"],
+        "auth": {
+          "captcha": "none",
+          "sms": true,
+          "email_confirmation": true,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Online über eAutoindex.ch oder SMS an 939 (SO xxxx), CHF 1.– pro Abfrage. Keine Auskunft per Telefon oder E-Mail.",
+          "en": "Via eAutoindex.ch or SMS to 939 (SO xxxx), CHF 1.– per query. No phone or email inquiries."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://so.ch/verwaltung/bau-und-justizdepartement/motorfahrzeugkontrolle/fahrzeuge/kontrollschilder/halterabfrage-online/",
+          "https://so.ch/verwaltung/bau-und-justizdepartement/motorfahrzeugkontrolle/fahrzeuge/kontrollschilder/halterabfrage-per-sms/",
+          "https://eautoindex.ch/"
+        ]
+      }
+    },
+    "SZ": {
+      "names": {
+        "de": "Schwyz",
+        "fr": "Schwytz",
+        "it": "Svitto",
+        "en": "Schwyz"
+      },
+      "authority": {
+        "name": "Verkehrsamt des Kantons Schwyz",
+        "url": "https://www.sz.ch/behoerden/verwaltung/baudepartement/verkehrsamt.html",
+        "email": "vasz@sz.ch",
+        "phone": "+41 41 819 21 56",
+        "postal": {
+          "street": "Schlagstrasse 82",
+          "zip": "6430",
+          "city": "Schwyz"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://eautoindex.ch/",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 1,
+        "payment_methods": ["prepaid"],
+        "auth": {
+          "captcha": "none",
+          "sms": true,
+          "email_confirmation": true,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Online über eAutoindex.ch oder SMS an 939 (SZ xxxxx), CHF 1.– pro Abfrage. Max. 5 Abfragen pro 24 Stunden.",
+          "en": "Via eAutoindex.ch or SMS to 939 (SZ xxxxx), CHF 1.– per query. Max 5 per 24 hours."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.sz.ch/behoerden/verwaltung/baudepartement/verkehrsamt.html",
+          "https://eautoindex.ch/",
+          "https://asa.ch/strassenverkehrsaemter/halterabfragen/"
+        ]
+      }
+    },
+    "TG": {
+      "names": {
+        "de": "Thurgau",
+        "fr": "Thurgovie",
+        "it": "Turgovia",
+        "en": "Thurgau"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Thurgau",
+        "url": "https://strassenverkehrsamt.tg.ch/",
+        "email": "strassenverkehrsamt@tg.ch",
+        "phone": "+41 58 345 62 00",
+        "postal": {
+          "street": "Moosweg 7a",
+          "zip": "8501",
+          "city": "Frauenfeld"
+        }
+      },
+      "halterauskunft": {
+        "mode": "mixed",
+        "url": "https://eautoindex.ch/",
+        "deeplink_template": null,
+        "form_pdf": "https://strassenverkehrsamt.tg.ch/public/upload/assets/89137/Halteranfrage.pdf",
+        "cost_chf": 1,
+        "payment_methods": ["prepaid"],
+        "auth": {
+          "captcha": "none",
+          "sms": true,
+          "email_confirmation": true,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Online CHF 1.– über eAutoindex.ch, max. 3 Abfragen/24 h, oder SMS an 939 (TG xxxx). Gesperrte Daten via PDF-Formular mit Begründung.",
+          "en": "Online CHF 1.– via eAutoindex.ch, max 3 queries/24 h, or SMS to 939 (TG xxxx). Blocked data via PDF form with reason."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://strassenverkehrsamt.tg.ch/",
+          "https://strassenverkehrsamt.tg.ch/public/upload/assets/89137/Halteranfrage.pdf",
+          "https://eautoindex.ch/"
+        ]
+      }
+    },
+    "TI": {
+      "names": {
+        "de": "Tessin",
+        "fr": "Tessin",
+        "it": "Ticino",
+        "en": "Ticino"
+      },
+      "authority": {
+        "name": "Sezione della circolazione",
+        "url": "https://www4.ti.ch/di/sc/home",
+        "email": "di-sc@ti.ch",
+        "phone": "+41 91 814 97 00",
+        "postal": {
+          "street": "Ala Munda 51",
+          "zip": "6528",
+          "city": "Camorino"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://www4.ti.ch/di/sc/veicoli/elenco-targhe",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": true,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Öffentliches Online-Register (elenco targhe), kostenlos. Nutzung nur für strassenverkehrsbezogene Zwecke, gesperrte Halter erscheinen nicht.",
+          "en": "Public online register (elenco targhe), free of charge. Use only for road-traffic purposes; blocked holders are excluded."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www4.ti.ch/di/sc/veicoli/elenco-targhe",
+          "https://www4.ti.ch/di/sc/home"
+        ]
+      }
+    },
+    "UR": {
+      "names": {
+        "de": "Uri",
+        "fr": "Uri",
+        "it": "Uri",
+        "en": "Uri"
+      },
+      "authority": {
+        "name": "Amt für Strassen- und Schiffsverkehr des Kantons Uri",
+        "url": "https://www.ur.ch/aemter/849",
+        "email": "assv@ur.ch",
+        "phone": "+41 41 875 28 00",
+        "postal": {
+          "street": "Gotthardstrasse 77a",
+          "zip": "6460",
+          "city": "Altdorf"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://eautoindex.ch/",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 1,
+        "payment_methods": ["prepaid"],
+        "auth": {
+          "captcha": "none",
+          "sms": true,
+          "email_confirmation": true,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Abfrage über eAutoindex.ch (Konto erforderlich) oder SMS an 939 (UR xxxxx), CHF 1.– pro Abfrage. Gedrucktes Halterverzeichnis erhältlich.",
+          "en": "Query via eAutoindex.ch (account required) or SMS to 939 (UR xxxxx), CHF 1.– per query. Printed directory also available."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.ur.ch/aemter/849",
+          "https://www.ur.ch/dienstleistungen/4129",
+          "https://eautoindex.ch/"
+        ]
+      }
+    },
+    "VD": {
+      "names": {
+        "de": "Waadt",
+        "fr": "Vaud",
+        "it": "Vaud",
+        "en": "Vaud"
+      },
+      "authority": {
+        "name": "Service des automobiles et de la navigation (SAN)",
+        "url": "https://www.vd.ch/san",
+        "email": "info.san@vd.ch",
+        "phone": "+41 21 316 82 10",
+        "postal": {
+          "street": "Avenue du Grey 110",
+          "zip": "1014",
+          "city": "Lausanne"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://vd-autoindex.viacar-system.ch",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "recaptcha",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Auto-Index kostenlos; reCaptcha zur Identifikation als natürliche Person; max. 5 Abfragen pro Tag.",
+          "en": "Auto-index free of charge; reCaptcha to verify human user; max 5 queries per day."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.vd.ch/mobilite/automobile/auto-index-trouver-une-detentrice-ou-un-detenteur-dun-numero-de-plaques-vaudoises",
+          "https://vd-autoindex.viacar-system.ch"
+        ]
+      }
+    },
+    "VS": {
+      "names": {
+        "de": "Wallis",
+        "fr": "Valais",
+        "it": "Vallese",
+        "en": "Valais"
+      },
+      "authority": {
+        "name": "Service de la circulation routière et de la navigation (SCN)",
+        "url": "https://www.vs.ch/web/scn",
+        "email": "scn@admin.vs.ch",
+        "phone": "+41 27 606 71 00",
+        "postal": {
+          "street": "Avenue de France 71",
+          "zip": "1950",
+          "city": "Sion"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://www.vs.ch/web/scn/contact-recherche-detenteur",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": true,
+          "requires_stated_reason": true,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "1-3_days",
+          "delivery": "pdf_email"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Online-Formular des SCN; Anfrage wird archiviert und kann an Dritte weitergegeben werden. Begründung erforderlich.",
+          "en": "SCN online form; requests are archived and may be transmitted to third parties. Stated reason required."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.vs.ch/web/scn/contact-recherche-detenteur",
+          "https://geo.vs.ch/web/scn/recherche-d-un-detenteur-de-plaques-vs"
+        ]
+      }
+    },
+    "ZG": {
+      "names": {
+        "de": "Zug",
+        "fr": "Zoug",
+        "it": "Zugo",
+        "en": "Zug"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Zug",
+        "url": "https://zg.ch/de/mobilitaet-reisen/strassenverkehr",
+        "email": "info.stva@zg.ch",
+        "phone": "+41 41 728 47 11",
+        "postal": {
+          "street": "Hinterbergstrasse 41",
+          "zip": "6312",
+          "city": "Steinhausen"
+        }
+      },
+      "halterauskunft": {
+        "mode": "mixed",
+        "url": "https://iform.zg.ch/iform/pub/StVA/start.do?generalid=StVA_ANF_HALTAUSK",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 35,
+        "payment_methods": ["invoice"],
+        "auth": {
+          "captcha": "none",
+          "sms": true,
+          "email_confirmation": true,
+          "requires_stated_reason": true,
+          "requires_identification": true
+        },
+        "processing": {
+          "typical": "1-3_days",
+          "delivery": "pdf_email"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Kostenloser Online-Autoindex (viacar) für einfache Abfragen. Qualifizierte Halterauskunft via iform.zg.ch, CHF 35.– pro Kennzeichen, Lieferung per verschlüsselter E-Mail mit SMS-Unlock-Code.",
+          "en": "Free online autoindex (viacar) for basic lookups. Qualified holder inquiry via iform.zg.ch, CHF 35.– per plate, delivered by encrypted email with SMS unlock code."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://iform.zg.ch/iform/pub/StVA/start.do?generalid=StVA_ANF_HALTAUSK",
+          "https://zg.ch/de/mobilitaet-reisen/strassenverkehr/services",
+          "https://www.viacar.ch/eindex/login.aspx?kanton=zg"
+        ]
+      }
+    },
+    "ZH": {
+      "names": {
+        "de": "Zürich",
+        "fr": "Zurich",
+        "it": "Zurigo",
+        "en": "Zurich"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Zürich",
+        "url": "https://www.zh.ch/de/sicherheitsdirektion/strassenverkehrsamt.html",
+        "email": "info@stva.zh.ch",
+        "phone": "+41 58 811 30 00",
+        "postal": {
+          "street": "Uetlibergstrasse 301",
+          "zip": "8036",
+          "city": "Zürich"
+        }
+      },
+      "halterauskunft": {
+        "mode": "online",
+        "url": "https://eautoindex.ch/",
+        "deeplink_template": null,
+        "form_pdf": null,
+        "cost_chf": 1,
+        "payment_methods": ["prepaid"],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": true,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "instant",
+          "delivery": "online_portal"
+        },
+        "legal_basis": "SVG Art. 104 / VZV Art. 126",
+        "notes": {
+          "de": "Abfrage über eAutoindex.ch, CHF 1.– pro Kennzeichen, max. 5 Abfragen/24 h. Erweiterte Auskünfte CHF 60.– pro halbe Stunde Arbeitsaufwand.",
+          "en": "Query via eAutoindex.ch, CHF 1.– per plate, max 5 queries/24 h. Extended inquiries CHF 60.– per half-hour of work."
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual",
+        "source_urls": [
+          "https://www.zh.ch/de/mobilitaet/fahrzeuge-kontrollschilder/auskunft-fahrzeugregister.html",
+          "https://eautoindex.ch/"
+        ]
+      }
+    }
+  }
+}
