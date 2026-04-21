@@ -9,11 +9,13 @@ import (
 	"time"
 )
 
-// Cross-source cache TTLs. Most sources declare their own TTL in the
-// source-specific file; a handful live here because they are referenced
-// from data loaders rather than from a single client method.
+// Cross-source cache TTLs that live outside their own source file. Most
+// sources declare their TTL in the source file they apply to; these are
+// shared with subcommands whose data loaders or endpoint probes would
+// otherwise have no natural home.
 const (
-	plateCacheTTL = 24 * time.Hour
+	plateCacheTTL    = 24 * time.Hour
+	vehiclesCacheTTL = 24 * time.Hour
 )
 
 type Cache struct {
