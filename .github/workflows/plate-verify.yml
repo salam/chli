@@ -1,0 +1,96 @@
+name: plate-verify
+
+on:
+  release:
+    types: [published]
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build chli
+        run: go build -o chli .
+
+      - name: Probe cantonal endpoints
+        id: verify
+        run: |
+          set -o pipefail
+          ./chli plate verify --all -o json | tee plate-verify.json
+
+      - name: Upload verification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: plate-verify-${{ github.event.release.tag_name || github.run_id }}
+          path: plate-verify.json
+
+      - name: Open issues for errored cantons
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let report;
+            try {
+              report = JSON.parse(fs.readFileSync('plate-verify.json', 'utf8'));
+            } catch (e) {
+              core.setFailed(`could not read plate-verify.json: ${e.message}`);
+              return;
+            }
+            const errored = report.filter(r => r.status === 'error');
+            if (errored.length === 0) {
+              core.info('no errored cantons — nothing to file');
+              return;
+            }
+            const { data: openIssues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'plate-verify,data-rot,auto',
+              per_page: 100,
+            });
+            for (const r of errored) {
+              const title = `plate-verify: ${r.canton} endpoint failing`;
+              const dup = openIssues.find(i => i.title === title);
+              if (dup) {
+                core.info(`${r.canton}: existing issue #${dup.number}, skipping`);
+                continue;
+              }
+              const reasons = (r.reasons || []).map(x => `- ${x}`).join('\n') || '- (no reasons reported)';
+              const body = [
+                `Automated report from \`plate-verify\` on ${r.checked_at || new Date().toISOString()}.`,
+                '',
+                `- Canton: \`${r.canton}\``,
+                `- URL: ${r.url}`,
+                r.final_url ? `- Final URL: ${r.final_url}` : '',
+                r.http_status ? `- HTTP status: ${r.http_status}` : '',
+                `- Elapsed: ${r.elapsed_ms || 0} ms`,
+                '',
+                '### Reasons',
+                reasons,
+                '',
+                '_Opened by the `plate-verify.yml` workflow. Close after updating `api/plate_cantons.json`._',
+              ].filter(Boolean).join('\n');
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['plate-verify', 'data-rot', 'auto'],
+              });
+              core.info(`${r.canton}: filed new issue`);
+            }
