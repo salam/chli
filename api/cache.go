@@ -9,6 +9,14 @@ import (
 	"time"
 )
 
+// Per-source cache TTLs that live outside their own source file. Most TTLs
+// are declared in the source file they apply to; these two are shared with
+// subcommands that live elsewhere (vehicles has its own client, plate has a
+// go:embed-backed loader that still writes endpoint probes into the cache).
+const (
+	vehiclesCacheTTL = 24 * time.Hour
+)
+
 type Cache struct {
 	Dir string
 }
