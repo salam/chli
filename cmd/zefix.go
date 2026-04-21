@@ -119,7 +119,7 @@ func zefixPrintFollowUp(results []api.ZefixCompany) {
 	if uid == "" {
 		return
 	}
-	fmt.Fprintf(os.Stderr, "\nFor SHAB publications on this entity:\n  chli shab search %s\nThen walk the FOSC chain from a hit:\n  chli shab history <publication-number>\n", uid)
+	fmt.Fprintf(os.Stderr, "\nCommercial-register (HR) publications for this entity:\n  chli shab search %s --rubric HR\nThen walk the FOSC chain from any HR hit:\n  chli shab history <HR-number>\n", uid)
 }
 
 func zefixRows(results []api.ZefixCompany) ([]string, [][]string) {
