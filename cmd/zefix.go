@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -35,13 +36,7 @@ since UID lookup goes through the Zefix REST API.`,
 var zefixCmd = &cobra.Command{
 	Use:   "zefix",
 	Short: "Swiss commercial register (Zefix)",
-	Long: `Search and look up Swiss companies via the Zefix REST API.
-
-Uses the authenticated official endpoint (www.zefix.admin.ch) when credentials
-are configured, and falls back to the unauthenticated zefix.ch endpoints
-otherwise. On the fallback path the canton filter is applied client-side and
-is a best-effort match (a few cantons that don't publish via chregister.ch
-register offices cannot be filtered this way).`,
+	Long: `Search and look up Swiss companies via the Zefix REST API. Uses the authenticated official endpoint when credentials are configured and falls back to the unauthenticated zefix.ch endpoints otherwise.`,
 }
 
 var zefixSearchCmd = &cobra.Command{
@@ -69,6 +64,7 @@ var zefixSearchCmd = &cobra.Command{
 
 		headers, rows := zefixRows(results)
 		output.Render(headers, rows, results)
+		zefixPrintFollowUp(results)
 		return nil
 	},
 }
@@ -104,8 +100,26 @@ var zefixCompanyCmd = &cobra.Command{
 
 		headers, rows := zefixRows(results)
 		output.Render(headers, rows, results)
+		zefixPrintFollowUp(results)
 		return nil
 	},
+}
+
+// zefixPrintFollowUp nudges the user toward SHAB for the first hit. Shown
+// only on interactive, table-style output — machine-readable formats stay
+// clean.
+func zefixPrintFollowUp(results []api.ZefixCompany) {
+	if len(results) == 0 || !output.IsInteractive() {
+		return
+	}
+	uid := results[0].UIDFormatted
+	if uid == "" {
+		uid = api.FormatUID(results[0].UID)
+	}
+	if uid == "" {
+		return
+	}
+	fmt.Fprintf(os.Stderr, "\nFor SHAB publications on this entity:\n  chli shab search %s\nThen walk the FOSC chain from a hit:\n  chli shab history <publication-number>\n", uid)
 }
 
 func zefixRows(results []api.ZefixCompany) ([]string, [][]string) {
