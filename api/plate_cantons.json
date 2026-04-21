@@ -1,0 +1,811 @@
+{
+  "schema_version": 1,
+  "cantons": {
+    "AG": {
+      "names": {
+        "de": "Aargau",
+        "fr": "Argovie",
+        "it": "Argovia",
+        "en": "Aargau"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Aargau"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "AI": {
+      "names": {
+        "de": "Appenzell Innerrhoden",
+        "fr": "Appenzell Rhodes-Intérieures",
+        "it": "Appenzello Interno",
+        "en": "Appenzell Innerrhoden"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Appenzell Innerrhoden"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "AR": {
+      "names": {
+        "de": "Appenzell Ausserrhoden",
+        "fr": "Appenzell Rhodes-Extérieures",
+        "it": "Appenzello Esterno",
+        "en": "Appenzell Ausserrhoden"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Appenzell Ausserrhoden"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "BE": {
+      "names": {
+        "de": "Bern",
+        "fr": "Berne",
+        "it": "Berna",
+        "en": "Bern"
+      },
+      "authority": {
+        "name": "Strassenverkehrs- und Schifffahrtsamt des Kantons Bern"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "BL": {
+      "names": {
+        "de": "Basel-Landschaft",
+        "fr": "Bâle-Campagne",
+        "it": "Basilea Campagna",
+        "en": "Basel-Landschaft"
+      },
+      "authority": {
+        "name": "Motorfahrzeugkontrolle des Kantons Basel-Landschaft"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "BS": {
+      "names": {
+        "de": "Basel-Stadt",
+        "fr": "Bâle-Ville",
+        "it": "Basilea Città",
+        "en": "Basel-Stadt"
+      },
+      "authority": {
+        "name": "Motorfahrzeugkontrolle des Kantons Basel-Stadt"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "FR": {
+      "names": {
+        "de": "Freiburg",
+        "fr": "Fribourg",
+        "it": "Friburgo",
+        "en": "Fribourg"
+      },
+      "authority": {
+        "name": "Office de la circulation et de la navigation du canton de Fribourg"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "GE": {
+      "names": {
+        "de": "Genf",
+        "fr": "Genève",
+        "it": "Ginevra",
+        "en": "Geneva"
+      },
+      "authority": {
+        "name": "Office cantonal des véhicules du canton de Genève"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "GL": {
+      "names": {
+        "de": "Glarus",
+        "fr": "Glaris",
+        "it": "Glarona",
+        "en": "Glarus"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Glarus"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "GR": {
+      "names": {
+        "de": "Graubünden",
+        "fr": "Grisons",
+        "it": "Grigioni",
+        "en": "Grisons"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Graubünden"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "JU": {
+      "names": {
+        "de": "Jura",
+        "fr": "Jura",
+        "it": "Giura",
+        "en": "Jura"
+      },
+      "authority": {
+        "name": "Office des véhicules de la République et Canton du Jura"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "LU": {
+      "names": {
+        "de": "Luzern",
+        "fr": "Lucerne",
+        "it": "Lucerna",
+        "en": "Lucerne"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Luzern"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "NE": {
+      "names": {
+        "de": "Neuenburg",
+        "fr": "Neuchâtel",
+        "it": "Neuchâtel",
+        "en": "Neuchâtel"
+      },
+      "authority": {
+        "name": "Service cantonal des automobiles et de la navigation du canton de Neuchâtel"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "NW": {
+      "names": {
+        "de": "Nidwalden",
+        "fr": "Nidwald",
+        "it": "Nidvaldo",
+        "en": "Nidwalden"
+      },
+      "authority": {
+        "name": "Verkehrssicherheitszentrum Ob- und Nidwalden"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "OW": {
+      "names": {
+        "de": "Obwalden",
+        "fr": "Obwald",
+        "it": "Obvaldo",
+        "en": "Obwalden"
+      },
+      "authority": {
+        "name": "Verkehrssicherheitszentrum Ob- und Nidwalden"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "SG": {
+      "names": {
+        "de": "St. Gallen",
+        "fr": "Saint-Gall",
+        "it": "San Gallo",
+        "en": "St. Gallen"
+      },
+      "authority": {
+        "name": "Strassenverkehrs- und Schifffahrtsamt des Kantons St. Gallen"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "SH": {
+      "names": {
+        "de": "Schaffhausen",
+        "fr": "Schaffhouse",
+        "it": "Sciaffusa",
+        "en": "Schaffhausen"
+      },
+      "authority": {
+        "name": "Strassenverkehrs- und Schifffahrtsamt des Kantons Schaffhausen"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "SO": {
+      "names": {
+        "de": "Solothurn",
+        "fr": "Soleure",
+        "it": "Soletta",
+        "en": "Solothurn"
+      },
+      "authority": {
+        "name": "Motorfahrzeugkontrolle des Kantons Solothurn"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "SZ": {
+      "names": {
+        "de": "Schwyz",
+        "fr": "Schwytz",
+        "it": "Svitto",
+        "en": "Schwyz"
+      },
+      "authority": {
+        "name": "Verkehrsamt des Kantons Schwyz"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "TG": {
+      "names": {
+        "de": "Thurgau",
+        "fr": "Thurgovie",
+        "it": "Turgovia",
+        "en": "Thurgau"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Thurgau"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "TI": {
+      "names": {
+        "de": "Tessin",
+        "fr": "Tessin",
+        "it": "Ticino",
+        "en": "Ticino"
+      },
+      "authority": {
+        "name": "Sezione della circolazione del Cantone Ticino"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "UR": {
+      "names": {
+        "de": "Uri",
+        "fr": "Uri",
+        "it": "Uri",
+        "en": "Uri"
+      },
+      "authority": {
+        "name": "Amt für Strassen- und Schiffsverkehr des Kantons Uri"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "VD": {
+      "names": {
+        "de": "Waadt",
+        "fr": "Vaud",
+        "it": "Vaud",
+        "en": "Vaud"
+      },
+      "authority": {
+        "name": "Service des automobiles et de la navigation du canton de Vaud"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "VS": {
+      "names": {
+        "de": "Wallis",
+        "fr": "Valais",
+        "it": "Vallese",
+        "en": "Valais"
+      },
+      "authority": {
+        "name": "Service de la circulation routière et de la navigation du canton du Valais"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "ZG": {
+      "names": {
+        "de": "Zug",
+        "fr": "Zoug",
+        "it": "Zugo",
+        "en": "Zug"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Zug"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    },
+    "ZH": {
+      "names": {
+        "de": "Zürich",
+        "fr": "Zurich",
+        "it": "Zurigo",
+        "en": "Zurich"
+      },
+      "authority": {
+        "name": "Strassenverkehrsamt des Kantons Zürich"
+      },
+      "halterauskunft": {
+        "mode": "unavailable",
+        "cost_chf": 0,
+        "payment_methods": [],
+        "auth": {
+          "captcha": "none",
+          "sms": false,
+          "email_confirmation": false,
+          "requires_stated_reason": false,
+          "requires_identification": false
+        },
+        "processing": {
+          "typical": "",
+          "delivery": ""
+        }
+      },
+      "verification": {
+        "last_verified": "2026-04-20",
+        "verified_by": "manual"
+      }
+    }
+  }
+}

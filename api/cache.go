@@ -9,6 +9,13 @@ import (
 	"time"
 )
 
+// Cross-source cache TTLs. Most sources declare their own TTL in the
+// source-specific file; a handful live here because they are referenced
+// from data loaders rather than from a single client method.
+const (
+	plateCacheTTL = 24 * time.Hour
+)
+
 type Cache struct {
 	Dir string
 }
