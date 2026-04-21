@@ -41,7 +41,8 @@
         "notes": {
           "de": "Kostenlose Abfrage über viacar, max. 5 Abfragen pro 24 Stunden.",
           "en": "Free viacar lookup, limited to 5 queries per 24 hours."
-        }
+        },
+        "queryable": true
       },
       "verification": {
         "last_verified": "2026-04-20",
@@ -76,7 +77,9 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 1,
-        "payment_methods": ["prepaid"],
+        "payment_methods": [
+          "prepaid"
+        ],
         "auth": {
           "captcha": "none",
           "sms": true,
@@ -128,7 +131,9 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 1,
-        "payment_methods": ["prepaid"],
+        "payment_methods": [
+          "prepaid"
+        ],
         "auth": {
           "captcha": "none",
           "sms": true,
@@ -180,7 +185,9 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 1,
-        "payment_methods": ["prepaid"],
+        "payment_methods": [
+          "prepaid"
+        ],
         "auth": {
           "captcha": "none",
           "sms": true,
@@ -231,7 +238,9 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 1,
-        "payment_methods": ["prepaid"],
+        "payment_methods": [
+          "prepaid"
+        ],
         "auth": {
           "captcha": "none",
           "sms": true,
@@ -282,7 +291,9 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 1,
-        "payment_methods": ["prepaid"],
+        "payment_methods": [
+          "prepaid"
+        ],
         "auth": {
           "captcha": "none",
           "sms": true,
@@ -350,7 +361,8 @@
         "notes": {
           "de": "Online-Auto-Index des OCN: Name und Adresse des Halters abrufbar, sofern keine Auskunftssperre besteht.",
           "en": "OCN online auto-index: holder name and address unless blocked."
-        }
+        },
+        "queryable": true
       },
       "verification": {
         "last_verified": "2026-04-20",
@@ -385,7 +397,11 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 10,
-        "payment_methods": ["mastercard", "visa", "bank_transfer"],
+        "payment_methods": [
+          "mastercard",
+          "visa",
+          "bank_transfer"
+        ],
         "auth": {
           "captcha": "none",
           "sms": false,
@@ -436,7 +452,9 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 1,
-        "payment_methods": ["prepaid"],
+        "payment_methods": [
+          "prepaid"
+        ],
         "auth": {
           "captcha": "none",
           "sms": true,
@@ -487,7 +505,11 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 1,
-        "payment_methods": ["mastercard", "visa", "prepaid"],
+        "payment_methods": [
+          "mastercard",
+          "visa",
+          "prepaid"
+        ],
         "auth": {
           "captcha": "none",
           "sms": true,
@@ -605,7 +627,8 @@
         "notes": {
           "de": "Kostenlose Online-Halterauskunft über viacar; begrenzte Abfragen pro 24 Stunden. Weitergehende Auskünfte schriftlich und begründet.",
           "en": "Free online holder lookup via viacar; limited queries per 24 hours. Further inquiries require written reason."
-        }
+        },
+        "queryable": true
       },
       "verification": {
         "last_verified": "2026-04-20",
@@ -640,7 +663,10 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 1,
-        "payment_methods": ["prepaid", "bank_transfer"],
+        "payment_methods": [
+          "prepaid",
+          "bank_transfer"
+        ],
         "auth": {
           "captcha": "none",
           "sms": true,
@@ -692,7 +718,9 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 1,
-        "payment_methods": ["prepaid"],
+        "payment_methods": [
+          "prepaid"
+        ],
         "auth": {
           "captcha": "none",
           "sms": false,
@@ -744,7 +772,9 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 1,
-        "payment_methods": ["prepaid"],
+        "payment_methods": [
+          "prepaid"
+        ],
         "auth": {
           "captcha": "none",
           "sms": false,
@@ -795,7 +825,9 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 1,
-        "payment_methods": ["prepaid"],
+        "payment_methods": [
+          "prepaid"
+        ],
         "auth": {
           "captcha": "none",
           "sms": true,
@@ -862,7 +894,8 @@
         "notes": {
           "de": "Online-Abfrage über viacar-System, kostenlos mit Tageslimit.",
           "en": "Free online query via the viacar system, daily limit applies."
-        }
+        },
+        "queryable": true
       },
       "verification": {
         "last_verified": "2026-04-20",
@@ -897,7 +930,9 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 1,
-        "payment_methods": ["prepaid"],
+        "payment_methods": [
+          "prepaid"
+        ],
         "auth": {
           "captcha": "none",
           "sms": true,
@@ -949,7 +984,9 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 1,
-        "payment_methods": ["prepaid"],
+        "payment_methods": [
+          "prepaid"
+        ],
         "auth": {
           "captcha": "none",
           "sms": true,
@@ -1001,7 +1038,9 @@
         "deeplink_template": null,
         "form_pdf": "https://strassenverkehrsamt.tg.ch/public/upload/assets/89137/Halteranfrage.pdf",
         "cost_chf": 1,
-        "payment_methods": ["prepaid"],
+        "payment_methods": [
+          "prepaid"
+        ],
         "auth": {
           "captcha": "none",
           "sms": true,
@@ -1069,7 +1108,8 @@
         "notes": {
           "de": "Öffentliches Online-Register (elenco targhe), kostenlos. Nutzung nur für strassenverkehrsbezogene Zwecke, gesperrte Halter erscheinen nicht.",
           "en": "Public online register (elenco targhe), free of charge. Use only for road-traffic purposes; blocked holders are excluded."
-        }
+        },
+        "queryable": true
       },
       "verification": {
         "last_verified": "2026-04-20",
@@ -1104,7 +1144,9 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 1,
-        "payment_methods": ["prepaid"],
+        "payment_methods": [
+          "prepaid"
+        ],
         "auth": {
           "captcha": "none",
           "sms": true,
@@ -1172,7 +1214,8 @@
         "notes": {
           "de": "Auto-Index kostenlos; reCaptcha zur Identifikation als natürliche Person; max. 5 Abfragen pro Tag.",
           "en": "Auto-index free of charge; reCaptcha to verify human user; max 5 queries per day."
-        }
+        },
+        "queryable": true
       },
       "verification": {
         "last_verified": "2026-04-20",
@@ -1223,7 +1266,8 @@
         "notes": {
           "de": "Online-Formular des SCN; Anfrage wird archiviert und kann an Dritte weitergegeben werden. Begründung erforderlich.",
           "en": "SCN online form; requests are archived and may be transmitted to third parties. Stated reason required."
-        }
+        },
+        "queryable": true
       },
       "verification": {
         "last_verified": "2026-04-20",
@@ -1258,7 +1302,9 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 35,
-        "payment_methods": ["invoice"],
+        "payment_methods": [
+          "invoice"
+        ],
         "auth": {
           "captcha": "none",
           "sms": true,
@@ -1310,7 +1356,9 @@
         "deeplink_template": null,
         "form_pdf": null,
         "cost_chf": 1,
-        "payment_methods": ["prepaid"],
+        "payment_methods": [
+          "prepaid"
+        ],
         "auth": {
           "captcha": "none",
           "sms": false,

@@ -7,17 +7,20 @@ import (
 	"runtime"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/matthiasak/chli/api"
+	"github.com/matthiasak/chli/config"
 	"github.com/matthiasak/chli/output"
 	"github.com/spf13/cobra"
 )
 
 var (
-	plateCantonFlag       string
-	plateOpenFlag         bool
-	plateLangFlag         string
-	plateNoPrivacyNotice  bool
+	plateCantonFlag      string
+	plateOpenFlag        bool
+	plateQueryFlag       bool
+	plateLangFlag        string
+	plateNoPrivacyNotice bool
 )
 
 var plateCmd = &cobra.Command{
@@ -32,6 +35,10 @@ Accepted plate forms:
   chli plate "ZH 123 456"
   chli plate zh-123-456
   chli plate 120120 --canton AG,AI,FR
+
+For the 7 cantons with free self-serve lookups (AG, FR, LU, SH, TI, VD, VS)
+passing --query opens the cantonal form in the browser and counts against a
+local 3/24h quota. The captcha stays on you — chli only launches the tab.
 `,
 	Args: cobra.ExactArgs(1),
 	RunE: runPlate,
@@ -106,8 +113,9 @@ func runPlate(cmd *cobra.Command, args []string) error {
 		default:
 			output.JSON(payload)
 		}
-		// --open still honoured in non-TTY mode for scripts that want it.
+		// --open and --query still honoured in non-TTY mode for scripts.
 		maybeOpenPlateLinks(p, entries)
+		maybeQueryPlate(p, entries)
 		return nil
 	}
 
@@ -123,6 +131,7 @@ func runPlate(cmd *cobra.Command, args []string) error {
 	}
 
 	maybeOpenPlateLinks(p, entries)
+	maybeQueryPlate(p, entries)
 	return nil
 }
 
@@ -215,6 +224,56 @@ func maybeOpenPlateLinks(p api.Plate, entries []api.CantonEntry) {
 	}
 }
 
+// maybeQueryPlate implements --query: for every canton entry marked
+// queryable, check the local 3/24h quota and, if there's a slot, record the
+// attempt and open the browser. chli never solves the captcha — the user
+// does that in the tab that just opened.
+func maybeQueryPlate(p api.Plate, entries []api.CantonEntry) {
+	if !plateQueryFlag {
+		return
+	}
+
+	cacheDir := config.DefaultCacheDir()
+	quota, err := api.LoadPlateQuota(cacheDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "query: loading quota: %v\n", err)
+		return
+	}
+
+	now := time.Now().UTC()
+	for _, e := range entries {
+		if !e.Halterauskunft.Queryable {
+			fmt.Fprintf(os.Stderr, "query: %s is not a queryable canton (no free self-serve lookup); skipping\n", e.Code)
+			continue
+		}
+		if quota.Remaining(now) == 0 {
+			next := quota.NextAvailable(now).In(time.Local)
+			fmt.Fprintf(os.Stderr, "query: %d/24h cap reached; next slot opens at %s\n",
+				api.PlateQuotaMax, next.Format("2006-01-02 15:04 MST"))
+			return
+		}
+		url, _ := api.DeeplinkFor(p, e)
+		if url == "" {
+			continue
+		}
+		if err := quota.Record(cacheDir, api.QuotaEntry{
+			Timestamp: now,
+			Canton:    e.Code,
+			Plate:     p.Normalized,
+			URL:       url,
+		}); err != nil {
+			fmt.Fprintf(os.Stderr, "query: recording quota: %v\n", err)
+			return
+		}
+		if err := openURL(url); err != nil {
+			fmt.Fprintf(os.Stderr, "query: opening %s: %v\n", url, err)
+			return
+		}
+		fmt.Fprintf(os.Stderr, "query: opened %s — %d/24h slots remaining\n",
+			e.Code, quota.Remaining(now))
+	}
+}
+
 func openURL(url string) error {
 	var cmd *exec.Cmd
 	switch runtime.GOOS {
@@ -231,6 +290,7 @@ func openURL(url string) error {
 func init() {
 	plateCmd.Flags().StringVar(&plateCantonFlag, "canton", "", "Comma-separated canton codes to dispatch to (required for fulltext form)")
 	plateCmd.Flags().BoolVar(&plateOpenFlag, "open", false, "Open the resolved URL in the default browser")
+	plateCmd.Flags().BoolVar(&plateQueryFlag, "query", false, "For queryable cantons (free self-serve lookup), open the form in the browser and count against the local 3/24h quota")
 	plateCmd.Flags().StringVar(&plateLangFlag, "lang", "", "Override the global --lang for this command (de|fr|it|en|rm)")
 	plateCmd.Flags().BoolVar(&plateNoPrivacyNotice, "no-privacy-notice", false, "Suppress the trailing privacy reminder")
 

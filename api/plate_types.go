@@ -113,6 +113,12 @@ type HalterauskunftEntry struct {
 	Processing       Processing         `json:"processing"`
 	LegalBasis       string             `json:"legal_basis,omitempty"`
 	Notes            map[string]string  `json:"notes,omitempty"`
+	// Queryable marks cantons offering free, self-serve public lookups that a
+	// user can complete themselves in a browser (no CHF, no login). chli never
+	// automates these — the captcha on every such service is the cantonal
+	// gate, not a bug to be worked around. --query opens the lookup URL and
+	// increments a local 3/24h quota.
+	Queryable bool `json:"queryable,omitempty"`
 }
 
 // Verification is provenance metadata for the canton record.

@@ -200,6 +200,10 @@ func RenderDispatch(p Plate, c CantonEntry, lang string) string {
 		fmt.Fprintf(&b, "Legal basis:   %s\n", h.LegalBasis)
 	}
 
+	if h.Queryable {
+		fmt.Fprintf(&b, "Queryable:     yes — free self-serve, pass --query to open\n")
+	}
+
 	// Postal block for postal/mixed cantons.
 	if (h.Mode == ModePostal || h.Mode == ModeMixed) && !c.Authority.Postal.IsEmpty() {
 		fmt.Fprintf(&b, "Postal:        %s, %s %s\n",
