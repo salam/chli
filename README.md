@@ -11,6 +11,8 @@ chli opendata search "Verkehr"
 chli swissreg trademark '"Ovomaltine"'
 chli zefix search "Migros" --canton ZH
 chli geo search "Bundesplatz 3, Bern"
+chli grundbuch parcel --address "Bundesplatz 3, Bern"
+chli grundbuch cantons
 ```
 
 ## Why chli?
@@ -54,6 +56,7 @@ make all
 | `chli uid` | [zefix.admin.ch](https://www.zefix.admin.ch) | REST (HTTP Basic) | UID-centric entry point; shares credentials with `zefix` |
 | `chli lindas` | [lindas.admin.ch](https://lindas.admin.ch) | SPARQL | Federal linked-data hub (IPI, BFS, procurement, energy, …) |
 | `chli geo` | [api3.geo.admin.ch](https://api3.geo.admin.ch) | REST | Address/place search, layer listing, identify-by-coordinate |
+| `chli grundbuch` | federated cadastre + 26 cantonal registers | REST + static registry | Parcel (EGRID, area, municipality) lookup + per-canton owner-access matrix (portal, auth, cost) |
 
 ## Quick Start
 
@@ -229,6 +232,42 @@ chli geo layers
 chli geo identify 7.4446,46.9479
 chli geo identify 7.4446,46.9479 --layers ch.kantone.cantonal-boundaries
 ```
+
+### Grundbuch (land register, parcel + owner access)
+
+```bash
+# Look up a parcel by address — returns EGRID, canton, municipality, parcel #, portal
+chli grundbuch parcel --address "Bundesplatz 3, Bern"
+
+# Or by EGRID (federal parcel ID)
+chli grundbuch parcel --egrid CH294676423526
+
+# Or by LV95 coordinate
+chli grundbuch parcel --coord 2600423,1199521
+
+# Owner data — returns a canton-specific "how-to" block (portal, auth, cost, legal basis).
+# Phase 1 never returns owner names directly: Swiss cantons gate owner
+# retrieval via SMS / AGOV / SwissID / Terravis / Intercapi / counter visits
+# depending on canton, and chli explains the path instead of pretending.
+chli grundbuch owner --egrid CH294676423526
+
+# Capability matrix: which cantons expose owner names publicly, which gate
+# behind SMS/eID/SwissID, which require paid extracts
+chli grundbuch cantons
+
+# Per-canton detail (portal URLs, auth model, cost, Grundbuchamt contact)
+chli grundbuch canton ZH
+chli grundbuch canton FR
+```
+
+Parcel geometry/EGRID works for all 26 cantons via the federal aggregated
+cadastre (`api3.geo.admin.ch`, layer `ch.kantone.cadastralwebmap-farbe`).
+Owner access varies wildly — see `chli grundbuch cantons` for the matrix
+and `chli grundbuch canton XX` for one canton's detail.
+
+The CLI never returns a certified extract (*beglaubigter Grundbuchauszug*);
+those always require the paid, identity-verified canton flow, which the
+`owner` command explains per canton.
 
 ### Open Data
 
